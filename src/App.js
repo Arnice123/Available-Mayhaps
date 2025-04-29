@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
-// test
+// src/App.js
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Signup from './pages/signup';
+import Login from './pages/login';
+import CreateGroup from './pages/create-group';
+import GroupPage from './pages/group/[groupId]';
+import Navbar from './components/navBar';
+import ProtectedRoute from './components/protectedRoute';
+
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/create-group" element={
+          <ProtectedRoute>
+            <CreateGroup />
+          </ProtectedRoute>
+        } />
+        <Route path="/group/:groupId" element={
+          <ProtectedRoute>
+            <GroupPage />
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<h1>404 Not Found</h1>} />
+      </Routes>
+    </Router>
   );
 }
 
