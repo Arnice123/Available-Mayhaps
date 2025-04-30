@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams  } from 'react-router-dom';
 
 export default function GroupPage() {
-  const router = useNavigate();
-  const { groupId } = router.query;
+  const { groupId } = useParams();
 
   const [group, setGroup] = useState(null);
   const [newMemberEmail, setNewMemberEmail] = useState('');
@@ -20,7 +19,8 @@ export default function GroupPage() {
 
   async function handleAddMember() {
     const token = localStorage.getItem('token');
-    await fetch('/api/groups/addMember', {
+  
+    const res = await fetch('/api/groups/addMember', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -28,10 +28,18 @@ export default function GroupPage() {
       },
       body: JSON.stringify({ groupId, memberEmail: newMemberEmail }),
     });
-    setNewMemberEmail('');
-    // eslint-disable-next-line no-restricted-globals
-    location.reload(); // reload to show new member
+  
+    if (res.ok) {
+      setGroup((prevGroup) => ({
+        ...prevGroup,
+        members: [...prevGroup.members, { email: newMemberEmail }],
+      }));
+      setNewMemberEmail('');
+    } else {
+      alert('Failed to add member');
+    }
   }
+  
 
   async function handleSendNotification() {
     const token = localStorage.getItem('token');

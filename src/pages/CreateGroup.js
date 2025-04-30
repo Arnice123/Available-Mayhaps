@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function CreateGroup() {
   const [name, setName] = useState('');
-  const router = useNavigate();
+  const navigate = useNavigate();
 
   async function handleCreateGroup(e) {
     e.preventDefault();
@@ -18,7 +18,7 @@ export default function CreateGroup() {
     });
     const data = await res.json();
     if (res.ok) {
-      router.push(`/group/${data.groupId}`);
+      navigate(`/group/${data.groupId}`);
     }
   }
 

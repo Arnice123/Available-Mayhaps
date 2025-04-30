@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useNavigate();
+  const navigate = useNavigate();
 
   async function handleSignup(e) {
     e.preventDefault();
@@ -14,7 +14,7 @@ export default function Signup() {
       body: JSON.stringify({ email, password }),
     });
     if (res.ok) {
-      router.push('/login');
+      navigate('/login');
     }
   }
 
