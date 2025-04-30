@@ -1,4 +1,4 @@
-import clientPromise from '../../../lib/mongodb';
+import clientPromise from '../../lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const db = client.db();
 
   const group = await db.collection('groups').findOne({ _id: new ObjectId(groupId) });
-  if (!group) return res.status(404).json({ message: 'Group not found' });
+  if (!group) return res.status(404).json({ message: 'Not found' });
 
   res.status(200).json({ group });
 }

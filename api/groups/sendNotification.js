@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
-import clientPromise from '../../../lib/mongodb';
+import clientPromise from '../../lib/mongodb';
 import { ObjectId } from 'mongodb';
-import { authenticateToken } from '../../../lib/authMiddleware';
+import { authenticateToken } from '../../lib/authMiddleware';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -17,19 +17,16 @@ export default async function handler(req, res) {
 
   const group = await db.collection('groups').findOne({ _id: new ObjectId(groupId) });
 
-  if (!group) return res.status(404).json({ message: 'Group not found' });
-  if (group.organizerEmail !== user.email) return res.status(403).json({ message: 'Forbidden' });
+  if (!group || group.organizerEmail !== user.email)
+    return res.status(403).json({ message: 'Forbidden' });
 
   const emails = group.members.map(m => m.email);
-
-  if (emails.length === 0) {
-    return res.status(400).json({ message: 'No members to send notification to' });
-  }
+  if (emails.length === 0) return res.status(400).json({ message: 'No members' });
 
   await resend.emails.send({
     from: process.env.RESEND_VERIFIED_EMAIL,
     to: emails,
-    subject: `Notification from ${group.name}`,
+    subject: `Message from ${group.name}`,
     text: message,
   });
 
