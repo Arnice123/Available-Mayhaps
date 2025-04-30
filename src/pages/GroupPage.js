@@ -10,7 +10,7 @@ export default function GroupPage() {
 
   useEffect(() => {
     async function fetchGroup() {
-      const res = await fetch(`/api/groups/${groupId}`);
+      const res = await fetch(`/api/groups/get?groupId=${groupId}`);
       const data = await res.json();
       setGroup(data.group);
     }
