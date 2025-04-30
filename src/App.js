@@ -1,11 +1,11 @@
 // src/App.js
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Signup from './pages/signup';
-import Login from './pages/login';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
 import CreateGroup from './pages/CreateGroup';
 import GroupPage from './pages/GroupPage';
-import Navbar from './components/NavBar';
-import ProtectedRoute from './components/protectedRoute';
+import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
