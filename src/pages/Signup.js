@@ -13,10 +13,17 @@ export default function Signup() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+  
+    const data = await res.json();
+    console.log('Signup response:', res.status, data);
+  
     if (res.ok) {
       navigate('/login');
+    } else {
+      alert(data.message || 'Signup failed');
     }
   }
+  
 
   return (
     <form onSubmit={handleSignup}>
