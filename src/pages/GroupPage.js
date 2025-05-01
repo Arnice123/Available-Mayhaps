@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams  } from 'react-router-dom';
+import { useParams, useNavigate  } from 'react-router-dom';
 
 export default function GroupPage() {
   const { groupId } = useParams();
@@ -7,6 +7,7 @@ export default function GroupPage() {
   const [group, setGroup] = useState(null);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchGroup() {
@@ -78,6 +79,18 @@ export default function GroupPage() {
       alert('Failed to delete group: ' + (data.message || 'Unknown error'));
     }
   }
+
+  const userEmail = useMemo(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+  
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.email;
+    } catch {
+      return null;
+    }
+  }, []);
 
   if (!group) return <p>Loading...</p>;
 
