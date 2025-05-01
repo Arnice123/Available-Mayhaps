@@ -55,6 +55,30 @@ export default function GroupPage() {
     setMessage('');
   }
 
+  async function handleDeleteGroup() {
+    const confirmDelete = window.confirm("Are you sure you want to delete this group?");
+    if (!confirmDelete) return;
+  
+    const token = localStorage.getItem('token');
+  
+    const res = await fetch('/api/groups/delete', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ groupId })
+    });
+  
+    if (res.ok) {
+      alert('Group deleted.');
+      navigate('/');
+    } else {
+      const data = await res.json();
+      alert('Failed to delete group: ' + (data.message || 'Unknown error'));
+    }
+  }
+
   if (!group) return <p>Loading...</p>;
 
   return (
@@ -72,6 +96,15 @@ export default function GroupPage() {
       <h2>Send Notification</h2>
       <textarea placeholder="Message" value={message} onChange={(e) => setMessage(e.target.value)} />
       <button onClick={handleSendNotification}>Send</button>
+
+      {userEmail === group.organizerEmail && (
+      <>
+        <h2>Danger Zone</h2>
+        <button onClick={handleDeleteGroup} style={{ backgroundColor: 'red', color: 'white' }}>
+          Delete Group
+        </button>
+      </>
+    )}
     </div>
   );
 }
