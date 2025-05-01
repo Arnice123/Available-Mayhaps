@@ -8,25 +8,35 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!token) return
-
+  
     async function fetchGroups() {
       try {
         const res = await fetch('/api/users/groups', {
           headers: { Authorization: `Bearer ${token}` }
         })
-        const data = await res.json()
-        if (res.ok) {
-          setGroups(data.groups)
-        } else {
-          console.error('Failed to fetch groups:', data.message)
+  
+        const text = await res.text() 
+  
+        let data
+        try {
+          data = JSON.parse(text) 
+        } catch {
+          throw new Error('Response was not valid JSON: ' + text)
         }
+  
+        if (!res.ok) {
+          throw new Error(data.message || 'Failed to fetch groups')
+        }
+  
+        setGroups(data.groups || [])
       } catch (err) {
         console.error('Error fetching groups:', err)
       }
     }
-
+  
     fetchGroups()
   }, [token])
+  
 
   function handleLogout() {
     localStorage.removeItem('token')
