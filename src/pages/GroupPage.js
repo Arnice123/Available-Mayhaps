@@ -92,7 +92,7 @@ export default function GroupPage() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ email: groupId, emailToDelete })
+      body: JSON.stringify({ groupId, emailToDelete })
     });
   
     if (res.ok) {
