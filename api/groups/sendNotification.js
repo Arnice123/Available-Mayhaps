@@ -1,4 +1,4 @@
-import clientPromise from '../../lib/mongodb';
+/*import clientPromise from '../../lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { authenticateToken } from '../../lib/authMiddleware';
 import nodemailer from 'nodemailer';
@@ -21,8 +21,6 @@ export default async function handler(req, res) {
   const emails = group.members.map(m => m.email);
   if (emails.length === 0) return res.status(400).json({ message: 'No members' });
 
-  console.log(emails)
-
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -43,5 +41,77 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('[nodemailer] error:', err);
     res.status(500).json({ message: 'Failed to send email' });
+  }
+}*/
+import clientPromise from '../../lib/mongodb';
+import { ObjectId } from 'mongodb';
+import { authenticateToken } from '../../lib/authMiddleware';
+import nodemailer from 'nodemailer';
+
+export default async function handler(req, res) {
+  console.log('[email] handler invoked');
+
+  if (req.method !== 'POST') {
+    console.warn('[email] Method not allowed:', req.method);
+    return res.status(405).end();
+  }
+
+  const user = authenticateToken(req);
+  if (!user) {
+    console.warn('[email] Unauthorized: no user from token');
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const { groupId, message } = req.body;
+  console.log('[email] request body:', { groupId, message });
+
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+
+    console.log('[email] Connected to DB');
+
+    const group = await db.collection('groups').findOne({ _id: new ObjectId(groupId) });
+    if (!group) {
+      console.warn('[email] Group not found');
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    if (group.organizerEmail !== user.email) {
+      console.warn('[email] Forbidden: not the organizer');
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    const emails = group.members.map(m => m.email);
+    console.log('[email] Found members:', emails);
+
+    if (emails.length === 0) {
+      console.warn('[email] No members to email');
+      return res.status(400).json({ message: 'No members' });
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD
+      }
+    });
+
+    console.log('[email] Transporter created with user:', process.env.EMAIL_USERNAME);
+
+    const info = await transporter.sendMail({
+      from: `"${group.name}" <${process.env.EMAIL_USERNAME}>`,
+      to: emails,
+      subject: `Message from ${group.name}`,
+      text: message,
+    });
+
+    console.log('[email] Email sent:', info);
+
+    res.status(200).json({ message: 'Emails sent' });
+  } catch (err) {
+    console.error('[email] ERROR during send:', err);
+    res.status(500).json({ message: 'Failed to send email', error: err.message });
   }
 }
