@@ -1,9 +1,7 @@
-import { Resend } from 'resend';
 import clientPromise from '../../lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { authenticateToken } from '../../lib/authMiddleware';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -23,12 +21,25 @@ export default async function handler(req, res) {
   const emails = group.members.map(m => m.email);
   if (emails.length === 0) return res.status(400).json({ message: 'No members' });
 
-  await resend.emails.send({
-    from: process.env.RESEND_VERIFIED_EMAIL,
-    to: emails,
-    subject: `Message from ${group.name}`,
-    text: message,
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USERNAME,       // your Gmail address
+        pass: process.env.EMAIL_PASSWORD        // app password (not your Gmail login password)
+      }
+    });
 
-  res.status(200).json({ message: 'Emails sent' });
+    await transporter.sendMail({
+      from: `"${group.name}" <${process.env.EMAIL_USERNAME}>`,
+      to: emails,
+      subject: `Message from ${group.name}`,
+      text: message,
+    });
+
+    res.status(200).json({ message: 'Emails sent' });
+  } catch (err) {
+    console.error('[nodemailer] error:', err);
+    res.status(500).json({ message: 'Failed to send email' });
+  }
 }
