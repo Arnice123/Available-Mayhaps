@@ -97,6 +97,10 @@ export default function GroupPage() {
   
     if (res.ok) {
       alert(`${emailToDelete} removed from group.`);
+      setGroup((prevGroup) => ({
+        ...prevGroup,
+        members: prevGroup.members.filter(m => m.email !== emailToDelete)
+      }));
     } else {
       const data = await res.json();
       alert('Failed to delete user: ' + (data.message || 'Unknown error'));
