@@ -5,6 +5,7 @@ import CreateGroup from './pages/CreateGroup';
 import GroupPage from './pages/GroupPage';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import CreateEvent from './pages/CreateEvent';
 
 function App() {
   return (
@@ -21,6 +22,11 @@ function App() {
         <Route path="/group/:groupId" element={
           <ProtectedRoute>
             <GroupPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/group/:groupId/createEvent" element={
+          <ProtectedRoute>
+            <CreateEvent />
           </ProtectedRoute>
         } />
         <Route path="*" element={<h1>404 Not Found</h1>} />

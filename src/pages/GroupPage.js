@@ -107,6 +107,10 @@ export default function GroupPage() {
     }
   }  
 
+  async function handleCreateEvent() {
+    navigate(`/group/${groupId}/createEvent`);
+  }
+
   const userEmail = useMemo(() => {
     const token = localStorage.getItem('token');
     if (!token) return null;
@@ -143,6 +147,11 @@ export default function GroupPage() {
 
       {userEmail === group.organizerEmail && (
       <>
+        <h2>Create Event</h2>
+        <button onClick={handleCreateEvent}>Create Event</button>
+
+        
+
         <h2>Danger Zone</h2>
         <button onClick={handleDeleteGroup} style={{ backgroundColor: 'red', color: 'white' }}>
           Delete Group
