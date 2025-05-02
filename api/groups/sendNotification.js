@@ -21,11 +21,13 @@ export default async function handler(req, res) {
   const emails = group.members.map(m => m.email);
   if (emails.length === 0) return res.status(400).json({ message: 'No members' });
 
+  console.log(emails)
+
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USERNAME,       // your Gmail address
+        user: process.env.EMAIL_USERNAME,
         pass: process.env.EMAIL_PASSWORD        // app password (not your Gmail login password)
       }
     });
