@@ -80,6 +80,29 @@ export default function GroupPage() {
     }
   }
 
+  async function handleDeleteMember(emailToDelete) {
+    const confirmDelete = window.confirm(`Are you sure you want to delete the user ${emailToDelete}?`);
+    if (!confirmDelete) return;
+  
+    const token = localStorage.getItem('token');
+  
+    const res = await fetch('/api/groups/deleteMember', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ email: emailToDelete, groupId })
+    });
+  
+    if (res.ok) {
+      alert(`${emailToDelete} removed from group.`);
+    } else {
+      const data = await res.json();
+      alert('Failed to delete user: ' + (data.message || 'Unknown error'));
+    }
+  }  
+
   const userEmail = useMemo(() => {
     const token = localStorage.getItem('token');
     if (!token) return null;
@@ -99,7 +122,11 @@ export default function GroupPage() {
       <h1>Group: {group.name}</h1>
       <h2>Members:</h2>
       <ul>
-        {group.members.map((m, idx) => <li key={idx}>{m.email}</li>)}
+        {group.members.map((m, idx) => 
+          <li key={idx}>{m.email} 
+            {userEmail === group.organizerEmail && (<button onClick={() => handleDeleteMember(m.email)}>X</button>)}            
+          </li>
+        )}
       </ul>
 
       <h2>Add Member</h2>
