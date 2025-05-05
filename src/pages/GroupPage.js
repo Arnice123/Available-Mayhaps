@@ -8,6 +8,10 @@ export default function GroupPage() {
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [message, setMessage] = useState('');
   const [selectedEventId, setSelectedEventId] = useState('');
+  const [memberAvailability, setMemberAvailability] = useState({});
+  const [excluded, setExcluded] = useState([]); 
+  const [permanentlyExcluded, setPermanentlyExcluded] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -112,6 +116,39 @@ export default function GroupPage() {
     navigate(`/group/${groupId}/createEvent`);
   }
 
+  async function handleSubmitAvailability() {
+    const token = localStorage.getItem('token');
+    const res = await fetch('/api/groups/submitAvailability', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        groupId,
+        eventId: selectedEventId,
+        availability: memberAvailability
+      })
+    });
+  
+    if (res.ok) {
+      alert('Availability submitted!');
+    } else {
+      const data = await res.json();
+      alert('Error: ' + (data.message || 'Unknown'));
+    }
+  }
+  
+  function toggleExclude(email) {
+    setExcluded((prev) =>
+      prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email]
+    );
+  }
+
+  function permanentlyExclude(email) {
+    setPermanentlyExcluded(prev => [...prev, email]);
+  }
+
   const userEmail = useMemo(() => {
     const token = localStorage.getItem('token');
     if (!token) return null;
@@ -156,7 +193,92 @@ export default function GroupPage() {
           </option>
         ))}
       </select>
+      
+      {selectedEventId && (() => {
+        const event = group.events.find(e => e._id === selectedEventId);
+        if (!event) return <p>Event not found.</p>;
 
+        const includedResponses = event.responses.filter(
+          r => !excluded.includes(r.email) && !permanentlyExcluded.includes(r.email)
+        );
+        
+        const aggregate = {};
+        
+        for (const res of includedResponses) {
+          for (const [slot, isAvailable] of Object.entries(res.availability)) {
+            if (isAvailable) {
+              aggregate[slot] = (aggregate[slot] || 0) + 1;
+            }
+          }
+        }       
+
+        const keys = Object.keys(event.availabilityTemplate);
+        const days = [...new Set(keys.map(k => k.split('-')[0]))];
+        const times = [...new Set(keys.map(k => k.split('-')[1]))];
+
+        function toggleCell(day, time) {
+          const key = `${day}-${time}`;
+          setMemberAvailability(prev => ({
+            ...prev,
+            [key]: !prev[key]
+          }));
+        }
+
+        return (
+          <div>
+            <h3>{event.title}</h3>
+            <p>{event.description}</p>
+
+            <table>
+              <thead>
+                <tr><th></th>{times.map(t => <th key={t}>{t}</th>)}</tr>
+              </thead>
+              <tbody>
+                {days.map(day => (
+                  <tr key={day}>
+                    <td>{day}</td>
+                    {times.map(time => {
+                      const key = `${day}-${time}`;
+                      const active = memberAvailability[key];
+                      return (
+                        <td
+                          key={key}
+                          onClick={() => toggleCell(day, time)}
+                          style={{
+                            backgroundColor: active ? 'lightgreen' : 'white',
+                            border: '1px solid #ccc',
+                            cursor: 'pointer',
+                            padding: '10px'
+                          }}
+                        />
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <button onClick={handleSubmitAvailability}>Submit Availability</button>
+
+            <h4>Responses:</h4>
+            <ul>
+              {event.responses.map((r) => (
+                <li key={r.email}>
+                  {r.email}
+                  <button onClick={() => toggleExclude(r.email)}>
+                    {excluded.includes(r.email) ? 'Include' : 'Temporarily Exclude'}
+                  </button>
+                  {!permanentlyExcluded.includes(r.email) && (
+                    <button onClick={() => permanentlyExclude(r.email)}>
+                      Permanently Exclude
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>          
+        );
+      })()}
 
       {userEmail === group.organizerEmail && (
       <>
