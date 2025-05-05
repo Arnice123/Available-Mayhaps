@@ -21,7 +21,45 @@ export default function CreateEvent() {
     }
 
     async function handleSubmit(e) {
-        
+        e.preventDefault();
+      
+        const token = localStorage.getItem('token');
+      
+        const res = await fetch('/api/groups/createEvent', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            groupId,
+            title,
+            description,
+            availability
+          })
+        });
+      
+        if (res.ok) {
+          alert('Event created and members have been emailed!');
+
+          await fetch('/api/groups/sendNotification', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              groupId,
+              message: `${title} has been created, respond as soon as available to you!`
+            }),
+          });
+          
+          alert('Notification sent!');
+          navigate(`/group/${groupId}`);
+        } else {
+          const data = await res.json();
+          alert('Failed to create event: ' + (data.message || 'Unknown error'));
+        }
     }
 
     return (

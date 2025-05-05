@@ -15,6 +15,7 @@ export default async function handler(req, res) {
     name,
     organizerEmail: user.email,
     members: [],
+    events: []
   });
 
   res.status(201).json({ groupId: result.insertedId.toString() });
