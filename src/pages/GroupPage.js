@@ -218,11 +218,14 @@ export default function GroupPage() {
 
         function toggleCell(day, time) {
           const key = `${day}-${time}`;
+          if (!event.availabilityTemplate[key]) return; 
+        
           setMemberAvailability(prev => ({
             ...prev,
             [key]: !prev[key]
           }));
         }
+        
 
         return (
           <div>
@@ -239,15 +242,19 @@ export default function GroupPage() {
                     <td>{day}</td>
                     {times.map(time => {
                       const key = `${day}-${time}`;
-                      const active = memberAvailability[key];
+                      const isAvailableSlot = event.availabilityTemplate[key];
+                      const isSelected = memberAvailability[key];
+
                       return (
                         <td
                           key={key}
                           onClick={() => toggleCell(day, time)}
                           style={{
-                            backgroundColor: active ? 'lightgreen' : 'white',
+                            backgroundColor: isAvailableSlot
+                              ? (isSelected ? 'lightgreen' : 'white')
+                              : '#f0f0f0',
+                            cursor: isAvailableSlot ? 'pointer' : 'not-allowed',
                             border: '1px solid #ccc',
-                            cursor: 'pointer',
                             padding: '10px'
                           }}
                         />
