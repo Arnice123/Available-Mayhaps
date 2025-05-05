@@ -210,11 +210,20 @@ export default function GroupPage() {
               aggregate[slot] = (aggregate[slot] || 0) + 1;
             }
           }
-        }       
+        }  
+        
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const times = [
+          '12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am',
+          '8am', '9am', '10am', '11am',
+          '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm',
+          '8pm', '9pm', '10pm', '11pm'
+        ];
+
 
         const keys = Object.keys(event.availabilityTemplate);
-        const days = [...new Set(keys.map(k => k.split('-')[0]))];
-        const times = [...new Set(keys.map(k => k.split('-')[1]))];
+        //const days = [...new Set(keys.map(k => k.split('-')[0]))];
+        //const times = [...new Set(keys.map(k => k.split('-')[1]))];
 
         function toggleCell(day, time) {
           const key = `${day}-${time}`;
