@@ -276,7 +276,7 @@ export default function GroupPage() {
 
             <button onClick={handleSubmitAvailability}>Submit Availability</button>
 
-            <h4>Responses:</h4>
+            <h4>Filtered Responses:</h4>
             <ul>
               {event.responses.map((r) => (
                 <li key={r.email}>
@@ -292,6 +292,45 @@ export default function GroupPage() {
                 </li>
               ))}
             </ul>
+
+            <h4>Combined Availability</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  {times.map(time => <th key={time}>{time}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {days.map(day => (
+                  <tr key={day}>
+                    <td>{day}</td>
+                    {times.map(time => {
+                      const key = `${day}-${time}`;
+                      const count = aggregate[key] || 0;
+                      const max = includedResponses.length || 1;
+                      const backgroundColor = `rgba(0, 200, 0, ${count / max})`;
+
+                      return (
+                        <td
+                          key={key}
+                          style={{
+                            backgroundColor: event.availabilityTemplate[key] ? backgroundColor : '#f0f0f0',
+                            border: '1px solid #ccc',
+                            textAlign: 'center',
+                            padding: '6px',
+                            color: count > max * 0.5 ? 'white' : 'black'
+                          }}
+                        >
+                          {event.availabilityTemplate[key] ? count : ''}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
           </div>          
         );
       })()}
