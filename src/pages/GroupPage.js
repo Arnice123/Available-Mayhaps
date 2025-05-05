@@ -7,6 +7,7 @@ export default function GroupPage() {
   const [group, setGroup] = useState(null);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -145,12 +146,22 @@ export default function GroupPage() {
       <textarea placeholder="Message" value={message} onChange={(e) => setMessage(e.target.value)} />
       <button onClick={handleSendNotification}>Send</button>
 
+      <h2>Active Events</h2>
+      <label>Select an Event:</label>
+      <select value={selectedEventId} onChange={(e) => setSelectedEventId(e.target.value)}>
+        <option value="">-- Choose an Event --</option>
+        {group.events.map((event) => (
+          <option key={event._id} value={event._id}>
+            {event.title}
+          </option>
+        ))}
+      </select>
+
+
       {userEmail === group.organizerEmail && (
       <>
         <h2>Create Event</h2>
-        <button onClick={handleCreateEvent}>Create Event</button>
-
-        
+        <button onClick={handleCreateEvent}>Create Event</button>        
 
         <h2>Danger Zone</h2>
         <button onClick={handleDeleteGroup} style={{ backgroundColor: 'red', color: 'white' }}>
