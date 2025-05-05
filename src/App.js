@@ -6,7 +6,6 @@ import GroupPage from './pages/GroupPage';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import CreateEvent from './pages/CreateEvent';
-import Events from './pages/Events';
 
 function App() {
   return (
