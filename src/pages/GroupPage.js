@@ -198,6 +198,35 @@ export default function GroupPage() {
     }
   }
 
+  async function handleEventDeletion() {
+    const confirmDelete = window.confirm("Are you sure you want to delete this event?");
+    if (!confirmDelete) return;
+  
+    const token = localStorage.getItem('token');
+  
+    const res = await fetch('/api/groups/deleteEvent', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ groupId, eventId: selectedEventId })
+    });
+  
+    if (res.ok) {
+      alert('Event deleted.');
+      setGroup(prev => ({
+        ...prev,
+        events: prev.events.filter(e => e._id !== selectedEventId)
+      }));
+      setSelectedEventId('');
+    } else {
+      const data = await res.json();
+      alert('Failed to delete event: ' + (data.message || 'Unknown error'));
+    }
+  }
+  
+
   const userEmail = useMemo(() => {
     const token = localStorage.getItem('token');
     if (!token) return null;
@@ -346,74 +375,75 @@ export default function GroupPage() {
               </tbody>
             </table>
           </div>
+        
+          <button onClick={handleSubmitAvailability}>Submit Availability</button>
 
-
-            <button onClick={handleSubmitAvailability}>Submit Availability</button>
-
-            <h4>Filtered Responses:</h4>
-            <ul>
-              {event.responses.map((r) => (
-                <li key={r.email}>
-                  {r.email}
-                  <button onClick={() => toggleExclude(r.email)}>
-                    {excluded.includes(r.email) ? 'Include' : 'Temporarily Exclude'}
+          <h4>Filtered Responses:</h4>
+          <ul>
+            {event.responses.map((r) => (
+              <li key={r.email}>
+                {r.email}
+                <button onClick={() => toggleExclude(r.email)}>
+                  {excluded.includes(r.email) ? 'Include' : 'Temporarily Exclude'}
+                </button>
+                {includedResponses.some(res => res.email === r.email) && (
+                  <button onClick={() => permanentlyExclude(r.email)}>
+                    Permanently Exclude
                   </button>
-                  {includedResponses.some(res => res.email === r.email) && (
-                    <button onClick={() => permanentlyExclude(r.email)}>
-                      Permanently Exclude
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
+                )}
+              </li>
+            ))}
+          </ul>
 
-            <h4>Combined Availability</h4>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ whiteSpace: 'nowrap' }}>
-                <thead>
-                  <tr>
-                    <th></th>
-                    {days.map(day => (
-                      <th key={day} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
-                        {format(parseISO(day), 'EEE MMM d')}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {times.map(time => (
-                    <tr key={time}>
-                      <td style={{ padding: '6px', whiteSpace: 'nowrap' }}>{time}</td>
-                      {days.map(day => {
-                        const key = `${day}-${time}`;
-                        const count = aggregate[key] || 0;
-                        const max = includedResponses.length || 1;
-                        const backgroundColor = event.availabilityTemplate[key]
-                          ? `rgba(0, 200, 0, ${count / max})`
-                          : '#f0f0f0';
-
-                        return (
-                          <td
-                            key={key}
-                            style={{
-                              backgroundColor,
-                              border: '1px solid #ccc',
-                              textAlign: 'center',
-                              padding: '6px',
-                              color: count > max * 0.5 ? 'white' : 'black',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            {event.availabilityTemplate[key] ? count : ''}
-                          </td>
-                        );
-                      })}
-                    </tr>
+          <h4>Combined Availability</h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ whiteSpace: 'nowrap' }}>
+              <thead>
+                <tr>
+                  <th></th>
+                  {days.map(day => (
+                    <th key={day} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
+                      {format(parseISO(day), 'EEE MMM d')}
+                    </th>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </tr>
+              </thead>
+              <tbody>
+                {times.map(time => (
+                  <tr key={time}>
+                    <td style={{ padding: '6px', whiteSpace: 'nowrap' }}>{time}</td>
+                    {days.map(day => {
+                      const key = `${day}-${time}`;
+                      const count = aggregate[key] || 0;
+                      const max = includedResponses.length || 1;
+                      const backgroundColor = event.availabilityTemplate[key]
+                        ? `rgba(0, 200, 0, ${count / max})`
+                        : '#f0f0f0';
+
+                      return (
+                        <td
+                          key={key}
+                          style={{
+                            backgroundColor,
+                            border: '1px solid #ccc',
+                            textAlign: 'center',
+                            padding: '6px',
+                            color: count > max * 0.5 ? 'white' : 'black',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {event.availabilityTemplate[key] ? count : ''}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          
+          {userEmail === group.organizerEmail && (<button onClick={handleEventDeletion}>Delete Event</button> )}          
+        </div>          
         );
       })()}
 
