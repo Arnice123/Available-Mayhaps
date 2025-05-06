@@ -283,16 +283,38 @@ export default function GroupPage() {
 
           <div style={{ overflowX: 'auto' }}>
             <table style={{ whiteSpace: 'nowrap' }}>
-              <thead>
-                <tr>
-                  <th></th>
-                  {days.map(day => (
-                    <th key={day} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
+            <thead>
+              <tr>
+                <th></th>
+                {days.map(day => (
+                  <th key={day} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
+                    <button
+                      onClick={() => {
+                        setMemberAvailability(prev => {
+                          const updated = { ...prev };
+                          times.forEach(time => {
+                            const key = `${day}-${time}`;
+                            if (event.availabilityTemplate[key]) {
+                              updated[key] = true;
+                            }
+                          });
+                          return updated;
+                        });
+                      }}
+                      style={{
+                        background: '#eee',
+                        border: '1px solid #ccc',
+                        padding: '4px 6px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                      }}
+                    >
                       {format(parseISO(day), 'EEE MMM d')}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+                    </button>
+                  </th>
+                ))}
+              </tr>
+            </thead>
               <tbody>
                 {times.map(time => (
                   <tr key={time}>
