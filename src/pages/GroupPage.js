@@ -145,9 +145,26 @@ export default function GroupPage() {
     );
   }
 
-  function permanentlyExclude(email) {
-    setPermanentlyExcluded(prev => [...prev, email]);
+  async function permanentlyExclude(email) {
+    const token = localStorage.getItem('token');
+    const eventId = selectedEventId;
+  
+    const res = await fetch('/api/groups/excludeMemberFromEvent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ groupId, eventId, emailToExclude: email })
+    });
+  
+    if (res.ok) {
+      setPermanentlyExcluded(prev => [...prev, email]);
+    } else {
+      alert('Failed to permanently exclude user');
+    }
   }
+  
 
   const userEmail = useMemo(() => {
     const token = localStorage.getItem('token');
@@ -198,8 +215,10 @@ export default function GroupPage() {
         const event = group.events.find(e => e._id === selectedEventId);
         if (!event) return <p>Event not found.</p>;
 
+        const excludedServer = event.excludedEmails || [];
+
         const includedResponses = event.responses.filter(
-          r => !excluded.includes(r.email) && !permanentlyExcluded.includes(r.email)
+          r => !excluded.includes(r.email) && !permanentlyExcluded.includes(r.email) && !excludedServer.includes(r.email)
         );
         
         const aggregate = {};

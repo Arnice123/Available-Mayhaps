@@ -29,7 +29,8 @@ export default async function handler(req, res) {
       description,
       availabilityTemplate: availability,
       responses: [],
-      createdAt: new Date()
+      createdAt: new Date(),
+      excludedEmails: []
     };
 
     await db.collection('groups').updateOne(
