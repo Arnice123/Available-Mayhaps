@@ -13,6 +13,12 @@ const SECRET = process.env.JWT_SECRET;
 const app = express();
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url}`);
+  next();
+});
+
+
 // ---- Grouped Endpoints ----
 
 app.post('/groups/addMember', async (req, res) => {
