@@ -1,7 +1,7 @@
-import clientPromise from '../../lib/mongodb';
+import clientPromise from '../lib/mongodb';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { authenticateToken } from '../../lib/authMiddleware';
+import { authenticateToken } from '../lib/authMiddleware';
 
 const SECRET = process.env.JWT_SECRET;
 
