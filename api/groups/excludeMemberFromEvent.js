@@ -3,12 +3,12 @@ import { ObjectId } from 'mongodb';
 import { authenticateToken } from '../../lib/authMiddleware';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  if (req.method !== 'DELETE') return res.status(405).end();
 
   const user = authenticateToken(req);
   if (!user) return res.status(401).json({ message: 'Unauthorized' });
 
-  const { groupId, eventId, emailToExclude } = req.body;
+  const { groupId, eventId, emailToDelete } = req.body;
 
   const client = await clientPromise;
   const db = client.db();
@@ -18,10 +18,14 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: 'Forbidden' });
   }
 
-  const updateResult = await db.collection('groups').updateOne(
-    { _id: new ObjectId(groupId), "events._id": new ObjectId(eventId) },
-    { $addToSet: { "events.$.excludedEmails": emailToExclude } }
+  const result = await db.collection('groups').updateOne(
+    { _id: new ObjectId(groupId), 'events._id': new ObjectId(eventId) },
+    {
+      $pull: {
+        'events.$.responses': { email: emailToDelete }
+      }
+    }
   );
 
-  return res.status(200).json({ message: 'Email permanently excluded' });
+  return res.status(200).json({ message: 'Response deleted' });
 }

@@ -150,7 +150,7 @@ export default function GroupPage() {
     const eventId = selectedEventId;
   
     const res = await fetch('/api/groups/excludeMemberFromEvent', {
-      method: 'POST',
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
@@ -303,7 +303,7 @@ export default function GroupPage() {
                   <button onClick={() => toggleExclude(r.email)}>
                     {excluded.includes(r.email) ? 'Include' : 'Temporarily Exclude'}
                   </button>
-                  {!permanentlyExcluded.includes(r.email) && (
+                  {includedResponses.some(res => res.email === r.email) && (
                     <button onClick={() => permanentlyExclude(r.email)}>
                       Permanently Exclude
                     </button>

@@ -20,6 +20,13 @@ export default async function handler(req, res) {
     await db.collection('groups').updateOne(
       { _id: new ObjectId(groupId), "events._id": new ObjectId(eventId) },
       {
+        $pull: { "events.$.responses": { email: user.email } }
+      }
+    );
+    
+    await db.collection('groups').updateOne(
+      { _id: new ObjectId(groupId), "events._id": new ObjectId(eventId) },
+      {
         $push: {
           "events.$.responses": {
             email: user.email,
@@ -29,6 +36,7 @@ export default async function handler(req, res) {
         }
       }
     );
+    
 
     return res.status(200).json({ message: 'Availability submitted' });
   } catch (err) {
