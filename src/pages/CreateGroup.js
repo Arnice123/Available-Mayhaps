@@ -8,7 +8,7 @@ export default function CreateGroup() {
   async function handleCreateGroup(e) {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    const res = await fetch('/api/groups/create', {
+    const res = await fetch('/api/groups/group', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

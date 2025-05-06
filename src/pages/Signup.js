@@ -8,7 +8,7 @@ export default function Signup() {
 
   async function handleSignup(e) {
     e.preventDefault();
-    const res = await fetch('/api/users/signup', {
+    const res = await fetch('/api/users/action=signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),

@@ -11,7 +11,7 @@ export default function Navbar() {
   
     async function fetchGroups() {
       try {
-        const res = await fetch('/api/users/groups', {
+        const res = await fetch('/api/users', {
           headers: { Authorization: `Bearer ${token}` }
         })
   

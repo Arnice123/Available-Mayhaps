@@ -49,7 +49,7 @@ export default function CreateEvent() {
 
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/groups/createEvent', {
+    const res = await fetch('/api/groups/event', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

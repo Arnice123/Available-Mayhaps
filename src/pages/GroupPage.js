@@ -36,7 +36,7 @@ export default function GroupPage() {
 
   useEffect(() => {
     async function fetchGroup() {
-      const res = await fetch(`/api/groups/get?groupId=${groupId}`);
+      const res = await fetch(`/api/groups/group?groupId=${groupId}`);
       const data = await res.json();
       setGroup(data.group);
     }
@@ -46,7 +46,7 @@ export default function GroupPage() {
   async function handleAddMember() {
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/groups/addMember', {
+    const res = await fetch('/api/groups/member', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export default function GroupPage() {
 
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/groups/delete', {
+    const res = await fetch('/api/groups/group', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export default function GroupPage() {
 
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/groups/deleteMember', {
+    const res = await fetch('/api/groups/member', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ export default function GroupPage() {
   async function permanentlyExclude(email) {
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/groups/excludeMemberFromEvent', {
+    const res = await fetch('/api/groups/event', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -204,7 +204,7 @@ export default function GroupPage() {
   
     const token = localStorage.getItem('token');
   
-    const res = await fetch('/api/groups/deleteEvent', {
+    const res = await fetch('/api/groups/event', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
