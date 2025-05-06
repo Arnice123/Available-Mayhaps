@@ -10,7 +10,6 @@ export default function GroupPage() {
   const [selectedEventId, setSelectedEventId] = useState('');
   const [memberAvailability, setMemberAvailability] = useState({});
   const [excluded, setExcluded] = useState([]); 
-  const [permanentlyExcluded, setPermanentlyExcluded] = useState([]);
 
   const navigate = useNavigate();
 
@@ -147,7 +146,6 @@ export default function GroupPage() {
 
   async function permanentlyExclude(email) {
     const token = localStorage.getItem('token');
-    const eventId = selectedEventId;
   
     const res = await fetch('/api/groups/excludeMemberFromEvent', {
       method: 'DELETE',
@@ -155,15 +153,31 @@ export default function GroupPage() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ groupId, eventId, emailToExclude: email })
+      body: JSON.stringify({ groupId, eventId: selectedEventId, emailToDelete: email })
     });
   
     if (res.ok) {
-      setPermanentlyExcluded(prev => [...prev, email]);
+      alert(`Deleted response for ${email}`);
+      setGroup((prev) => {
+        const updatedEvents = prev.events.map((event) => {
+          if (event._id !== selectedEventId) return event;
+  
+          const updatedResponses = event.responses.filter(r => r.email !== email);
+  
+          return {
+            ...event,
+            responses: updatedResponses
+          };
+        });
+  
+        return { ...prev, events: updatedEvents };
+      });
     } else {
-      alert('Failed to permanently exclude user');
+      const data = await res.json();
+      alert(`Failed to delete response: ${data.message || 'Unknown error'}`);
     }
   }
+  
   
 
   const userEmail = useMemo(() => {
@@ -214,11 +228,8 @@ export default function GroupPage() {
       {selectedEventId && (() => {
         const event = group.events.find(e => e._id === selectedEventId);
         if (!event) return <p>Event not found.</p>;
-
-        const excludedServer = event.excludedEmails || [];
-
         const includedResponses = event.responses.filter(
-          r => !excluded.includes(r.email) && !permanentlyExcluded.includes(r.email) && !excludedServer.includes(r.email)
+          r => !excluded.includes(r.email)
         );
         
         const aggregate = {};

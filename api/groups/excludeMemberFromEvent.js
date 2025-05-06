@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   if (!group || group.organizerEmail !== user.email) {
     return res.status(403).json({ message: 'Forbidden' });
   }
-
+  
   const result = await db.collection('groups').updateOne(
     { _id: new ObjectId(groupId), 'events._id': new ObjectId(eventId) },
     {
@@ -26,6 +26,10 @@ export default async function handler(req, res) {
       }
     }
   );
+
+  if (result.modifiedCount === 0) {
+    return res.status(404).json({ message: 'No matching response found to delete' });
+  }  
 
   return res.status(200).json({ message: 'Response deleted' });
 }
