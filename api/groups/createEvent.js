@@ -8,9 +8,9 @@ export default async function handler(req, res) {
   const user = authenticateToken(req);
   if (!user) return res.status(401).json({ message: 'Unauthorized' });
 
-  const { groupId, title, description, availability } = req.body;
+  const { groupId, title, description, availability, startDate, endDate, startTime, endTime, } = req.body;
 
-  if (!groupId || !title || !availability) {
+  if (!groupId || !title || !availability || !startDate || !endDate || !startTime || !endTime) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
@@ -30,6 +30,10 @@ export default async function handler(req, res) {
       availabilityTemplate: availability,
       responses: [],
       createdAt: new Date(),
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      startTime,
+      endTime,
     };
 
     await db.collection('groups').updateOne(
