@@ -136,8 +136,10 @@ export default function CreateEvent() {
               <tr>
                 <th></th>
                 {selectedDates().map(date => (
-                  <th key={date}>{date}</th>
-                ))}
+                <th key={date} style={{ whiteSpace: 'nowrap', padding: '10px' }}>
+                {format(parseISO(date), 'EEE MMM d')}
+              </th>              
+              ))}
               </tr>
             </thead>
             <tbody>
@@ -155,7 +157,8 @@ export default function CreateEvent() {
                           padding: '10px',
                           cursor: 'pointer',
                           backgroundColor: isSelected ? 'lightgreen' : 'white',
-                          border: '1px solid #ccc'
+                          border: '1px solid #ccc',
+                          whiteSpace: 'nowrap'
                         }}
                       />
                     );

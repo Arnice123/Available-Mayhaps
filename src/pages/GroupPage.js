@@ -285,14 +285,16 @@ export default function GroupPage() {
               <thead>
                 <tr>
                   <th></th>
-                  {times.map(time => <th key={time}>{time}</th>)}
+                  {days.map(day => (
+                    <th key={day}>{format(parseISO(day), 'EEE MMM d')}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {days.map(day => (
-                  <tr key={day}>
-                    <td>{format(parseISO(day), 'EEE MMM d')}</td>
-                    {times.map(time => {
+                {times.map(time => (
+                  <tr key={time}>
+                    <td>{time}</td>
+                    {days.map(day => {
                       const key = `${day}-${time}`;
                       const isAvailableSlot = event.availabilityTemplate[key];
                       const isSelected = memberAvailability[key];
@@ -337,42 +339,51 @@ export default function GroupPage() {
             </ul>
 
             <h4>Combined Availability</h4>
-            <table>
-              <thead>
-                <tr>
-                  <th></th>
-                  {times.map(time => <th key={time}>{time}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {days.map(day => (
-                  <tr key={day}>
-                    <td>{format(parseISO(day), 'EEE MMM d')}</td>
-                    {times.map(time => {
-                      const key = `${day}-${time}`;
-                      const count = aggregate[key] || 0;
-                      const max = includedResponses.length || 1;
-                      const backgroundColor = `rgba(0, 200, 0, ${count / max})`;
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ whiteSpace: 'nowrap' }}>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      {days.map(day => (
+                        <th key={day} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
+                          {format(parseISO(day), 'EEE MMM d')}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {times.map(time => (
+                      <tr key={time}>
+                        <td style={{ padding: '6px', whiteSpace: 'nowrap' }}>{time}</td>
+                        {days.map(day => {
+                          const key = `${day}-${time}`;
+                          const count = aggregate[key] || 0;
+                          const max = includedResponses.length || 1;
+                          const backgroundColor = event.availabilityTemplate[key]
+                            ? `rgba(0, 200, 0, ${count / max})`
+                            : '#f0f0f0';
 
-                      return (
-                        <td
-                          key={key}
-                          style={{
-                            backgroundColor: event.availabilityTemplate[key] ? backgroundColor : '#f0f0f0',
-                            border: '1px solid #ccc',
-                            textAlign: 'center',
-                            padding: '6px',
-                            color: count > max * 0.5 ? 'white' : 'black'
-                          }}
-                        >
-                          {event.availabilityTemplate[key] ? count : ''}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          return (
+                            <td
+                              key={key}
+                              style={{
+                                backgroundColor,
+                                border: '1px solid #ccc',
+                                textAlign: 'center',
+                                padding: '6px',
+                                color: count > max * 0.5 ? 'white' : 'black',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {event.availabilityTemplate[key] ? count : ''}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
           </div>
         );
       })()}
