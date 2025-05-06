@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Signup from './pages/Signup';
-import Login from './pages/Login';
-import CreateGroup from './pages/CreateGroup';
-import GroupPage from './pages/GroupPage';
-import Navbar from './components/Navbar';
-import ProtectedRoute from './components/ProtectedRoute';
-import CreateEvent from './pages/CreateEvent';
+import Signup from './pages/Signup.js';
+import Login from './pages/Login.js';
+import CreateGroup from './pages/CreateGroup.js';
+import GroupPage from './pages/GroupPage.js';
+import Navbar from './components/Navbar.js';
+import ProtectedRoute from './components/ProtectedRoute.js';
+import CreateEvent from './pages/CreateEvent.js';
 
 function App() {
   return (
