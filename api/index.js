@@ -15,7 +15,7 @@ app.use(express.json());
 
 // ---- Grouped Endpoints ----
 
-app.post('/api/groups/addMember', async (req, res) => {
+app.post('/groups/addMember', async (req, res) => {
     if (req.method !== 'POST') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -33,7 +33,7 @@ app.post('/api/groups/addMember', async (req, res) => {
     res.status(200).json({ message: 'Member added' });
 })
 
-app.post('/api/groups/create', async (req, res) => {
+app.post('/groups/create', async (req, res) => {
     if (req.method !== 'POST') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -53,7 +53,7 @@ app.post('/api/groups/create', async (req, res) => {
     res.status(201).json({ groupId: result.insertedId.toString() });
 })
 
-app.post('/api/groups/createEvent', async (req, res) => {
+app.post('/groups/createEvent', async (req, res) => {
     if (req.method !== 'POST') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -99,7 +99,7 @@ app.post('/api/groups/createEvent', async (req, res) => {
     }
 })
 
-app.delete('/api/groups/delete', async (req, res) => {
+app.delete('/groups/delete', async (req, res) => {
     if (req.method !== 'DELETE') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -131,7 +131,7 @@ app.delete('/api/groups/delete', async (req, res) => {
     }
 })
 
-app.delete('/api/groups/deleteEvent', async (req, res) => {
+app.delete('/groups/deleteEvent', async (req, res) => {
     if (req.method !== 'DELETE') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -159,7 +159,7 @@ app.delete('/api/groups/deleteEvent', async (req, res) => {
     return res.status(200).json({ message: 'Event deleted' });
 })
 
-app.delete('/api/groups/deleteMember', async (req, res) => {
+app.delete('/groups/deleteMember', async (req, res) => {
     if (req.method !== 'DELETE') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -188,7 +188,7 @@ app.delete('/api/groups/deleteMember', async (req, res) => {
     }
 })
 
-app.delete('/api/groups/excludeMemberFromEvent', async (req, res) => {
+app.delete('/groups/excludeMemberFromEvent', async (req, res) => {
     if (req.method !== 'DELETE') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -220,7 +220,7 @@ app.delete('/api/groups/excludeMemberFromEvent', async (req, res) => {
     return res.status(200).json({ message: 'Response deleted' });
 })
 
-app.get('/api/groups/get', async (req, res) => {
+app.get('/groups/get', async (req, res) => {
     if (req.method !== 'GET') return res.status(405).end();
 
     const { groupId } = req.query;
@@ -233,7 +233,7 @@ app.get('/api/groups/get', async (req, res) => {
     res.status(200).json({ group });
 })
 
-app.post('/api/groups/sendNotification', async (req, res) => {
+app.post('/groups/sendNotification', async (req, res) => {
     if (req.method !== 'POST') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -276,7 +276,7 @@ app.post('/api/groups/sendNotification', async (req, res) => {
     }
 })
 
-app.post('/api/groups/submitAvailability', async (req, res) => {
+app.post('/groups/submitAvailability', async (req, res) => {
     if (req.method !== 'POST') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -319,7 +319,7 @@ app.post('/api/groups/submitAvailability', async (req, res) => {
     }
 })
 
-app.get('/api/users/groups', async (req, res) => {
+app.get('/users/groups', async (req, res) => {
     if (req.method !== 'GET') return res.status(405).end();
 
     const user = authenticateToken(req);
@@ -351,7 +351,7 @@ app.get('/api/users/groups', async (req, res) => {
 })
 
 
-app.post('/api/users/login', async (req, res) => {
+app.post('/users/login', async (req, res) => {
     if (req.method !== 'POST') return res.status(405).end();
 
     const { email, password } = req.body;
@@ -368,7 +368,7 @@ app.post('/api/users/login', async (req, res) => {
     res.status(200).json({ token });
 })
 
-app.post('/api/users/signup', async (req, res) => {
+app.post('/users/signup', async (req, res) => {
     if (req.method !== 'POST') return res.status(405).end();
 
     const { email, password } = req.body;
