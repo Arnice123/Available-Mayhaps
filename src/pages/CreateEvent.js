@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { format, addDays, eachDayOfInterval } from 'date-fns';
+import { format, parseISO, eachDayOfInterval } from 'date-fns';
 
 export default function CreateEvent() {
   const { groupId } = useParams();
