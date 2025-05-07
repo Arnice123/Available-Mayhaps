@@ -356,7 +356,9 @@ export default function GroupPage() {
             onChange={(e) => setSelectedEventId(e.target.value)}
           >
             <option value="">-- Choose an Event --</option>
-            {group.events.map((event) => (
+            {[...group.events]
+            .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+            .map((event) => (
               <option key={event._id} value={event._id}>
                 {event.title}
               </option>
