@@ -31,6 +31,8 @@ export default function GroupPage() {
   const [selectedEventId, setSelectedEventId] = useState('');
   const [memberAvailability, setMemberAvailability] = useState({});
   const [excluded, setExcluded] = useState([]);
+  const [cooldownActive, setCooldownActive] = useState(false);
+  const [selectedResponseType, setSelectedResponseType] = useState(1); // 1: perfect, 2: ok, 3: possible
 
   const navigate = useNavigate();
 
@@ -67,6 +69,9 @@ export default function GroupPage() {
   }
 
   async function handleSendNotification() {
+    if (cooldownActive) return;
+    setCooldownActive(true);
+
     const token = localStorage.getItem('token');
     await fetch('/api/groups/sendNotification', {
       method: 'POST',
@@ -78,6 +83,8 @@ export default function GroupPage() {
     });
     alert('Notification sent!');
     setMessage('');
+
+    setTimeout(() => setCooldownActive(false), 1000);
   }
 
   async function handleDeleteGroup() {
@@ -298,17 +305,35 @@ export default function GroupPage() {
         function toggleCell(day, time) {
           const key = `${day}-${time}`;
           if (!event.availabilityTemplate[key]) return;
-
-          setMemberAvailability(prev => ({
-            ...prev,
-            [key]: !prev[key]
-          }));
+        
+          setMemberAvailability(prev => {
+            const current = prev[key] || 0;
+            if (current === selectedResponseType) {
+              return { ...prev, [key]: 0 };
+            }
+            return { ...prev, [key]: selectedResponseType };
+          });
         }
+              
 
         return (
           <div>
           <h3>{event.title}</h3>
           <p>{event.description}</p>
+
+          <div style={{ marginBottom: '10px' }}>
+            <span>Select response type: </span>
+            <button onClick={() => setSelectedResponseType(1)} style={{ backgroundColor: selectedResponseType === 1 ? 'lightgreen' : 'white' }}>
+              Perfect Time
+            </button>
+            <button onClick={() => setSelectedResponseType(2)} style={{ backgroundColor: selectedResponseType === 2 ? 'khaki' : 'white' }}>
+              OK Time
+            </button>
+            <button onClick={() => setSelectedResponseType(3)} style={{ backgroundColor: selectedResponseType === 3 ? 'lightcoral' : 'white' }}>
+              Possible, Not Ideal
+            </button>
+          </div>
+
 
           <div style={{ overflowX: 'auto' }}>
             <table style={{ whiteSpace: 'nowrap' }}>
@@ -351,8 +376,15 @@ export default function GroupPage() {
                     {days.map(day => {
                       const key = `${day}-${time}`;
                       const isAvailableSlot = event.availabilityTemplate[key];
-                      const isSelected = memberAvailability[key];
-
+                      let bgColor = '#f0f0f0';
+                      if (isAvailableSlot) {
+                        switch (memberAvailability[key]) {
+                          case 1: bgColor = 'lightgreen'; break;
+                          case 2: bgColor = 'khaki'; break;
+                          case 3: bgColor = 'lightcoral'; break;
+                          default: bgColor = 'white'; break;
+                        }
+                      }
                       return (
                         <td
                           key={key}
