@@ -142,6 +142,7 @@ export default function CreateEvent() {
                   {selectedDates().map(date => (
                     <th key={date} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
                       <button
+                        type='button'
                         onClick={() => {
                           setAvailability(prev => {
                             const updated = { ...prev };
