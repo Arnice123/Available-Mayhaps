@@ -6,12 +6,14 @@ import GroupPage from './pages/GroupPage.js';
 import Navbar from './components/Navbar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
 import CreateEvent from './pages/CreateEvent.js';
+import Home from './pages/Home.js';
 
 function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
+      <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/create-group" element={
