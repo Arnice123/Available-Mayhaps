@@ -357,7 +357,7 @@ export default function GroupPage() {
           >
             <option value="">-- Choose an Event --</option>
             {[...group.events]
-            .sort((a, b) => new Date(b.startDate)) - new Date(a.startDate)
+            .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
             .map((event) => (
               <option key={event._id} value={event._id}>
                 {event.title}
