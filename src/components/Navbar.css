@@ -107,7 +107,7 @@
   margin-top: 0.5rem;
 }
 
-.groups-dropdown:hover .groups-dropdown-content {
+.groups-dropdown-content.open {
   display: block;
 }
 
@@ -219,7 +219,7 @@
     margin-top: 0.25rem;
   }
   
-  .groups-dropdown.open .groups-dropdown-content {
+  .groups-dropdown-content.open {
     display: block;
   }
   
