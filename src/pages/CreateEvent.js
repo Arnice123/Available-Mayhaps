@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format, parseISO, eachDayOfInterval } from 'date-fns';
+import AvailabilityGrid from '../components/AvailabilityGrid.js';
 
 export default function CreateEvent() {
   const { groupId } = useParams();
@@ -136,65 +137,13 @@ export default function CreateEvent() {
 
         <h2>Select Available Times</h2>
         {selectedDates().length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>        
-            <table>
-              <thead>
-                <tr>
-                  <th></th>
-                  {selectedDates().map(date => (
-                    <th key={date} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          setAvailability(prev => {
-                            const updated = { ...prev };
-                            getFilteredTimes().forEach(time => {
-                              const key = `${date}-${time}`;
-                              updated[key] = true;
-                            });
-                            return updated;
-                          });
-                        }}
-                        style={{
-                          background: '#eee',
-                          border: '1px solid #ccc',
-                          padding: '4px 6px',
-                          cursor: 'pointer',
-                          fontWeight: 'bold'
-                        }}
-                      >
-                        {format(parseISO(date), 'EEE MMM d')}
-                      </button>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {getFilteredTimes().map(time => (
-                  <tr key={time}>
-                    <td>{time}</td>
-                    {selectedDates().map(date => {
-                      const key = `${date}-${time}`;
-                      const isSelected = availability[key];
-                      return (
-                        <td
-                          key={key}
-                          onClick={() => toggleCell(date, time)}
-                          style={{
-                            padding: '10px',
-                            cursor: 'pointer',
-                            backgroundColor: isSelected ? 'lightgreen' : 'white',
-                            border: '1px solid #ccc',
-                            whiteSpace: 'nowrap'
-                          }}
-                        />
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <AvailabilityGrid
+            selectedDates={selectedDates()}
+            times={getFilteredTimes()}
+            availability={availability}
+            setAvailability={setAvailability}
+            mode="binary"
+          />
         ) : (
           <p>Please select a valid start and end date.</p>
         )}

@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format, eachDayOfInterval, parseISO } from 'date-fns';
 
+import AvailabilityGrid from '../components/AvailabilityGrid.js';
+
 const TIMES = [
   '12am','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
   '12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
@@ -328,21 +330,7 @@ export default function GroupPage() {
               aggregate[slot] = (aggregate[slot] || 0) + 1;
             }
           }
-        }
-
-        function toggleCell(day, time) {
-          const key = `${day}-${time}`;
-          if (!event.availabilityTemplate[key]) return;
-        
-          setMemberAvailability(prev => {
-            const current = prev[key] || 0;
-            if (current === selectedResponseType) {
-              return { ...prev, [key]: 0 };
-            }
-            return { ...prev, [key]: selectedResponseType };
-          });
-        }
-              
+        }             
 
         return (
           <div>
@@ -362,78 +350,16 @@ export default function GroupPage() {
             </button>
           </div>
 
+          <AvailabilityGrid
+            selectedDates={days}
+            times={times}
+            availability={memberAvailability}
+            setAvailability={setMemberAvailability}
+            availabilityTemplate={event.availabilityTemplate}
+            mode="level"
+            selectedResponseType={selectedResponseType}
+          />
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ whiteSpace: 'nowrap' }}>
-            <thead>
-              <tr>
-                <th></th>
-                {days.map(day => (
-                  <th key={day} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
-                    <button
-                      onClick={() => {
-                        setMemberAvailability(prev => {
-                          const updated = { ...prev };
-                          times.forEach(time => {
-                            const key = `${day}-${time}`;
-                            if (event.availabilityTemplate[key]) {
-                              updated[key] = selectedResponseType;
-                            }
-                          });
-                          return updated;
-                        });
-                      }}
-                      style={{
-                        background: '#eee',
-                        border: '1px solid #ccc',
-                        padding: '4px 6px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {format(parseISO(day), 'EEE MMM d')}
-                    </button>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-              <tbody>
-                {times.map(time => (
-                  <tr key={time}>
-                    <td style={{ padding: '6px', whiteSpace: 'nowrap' }}>{time}</td>
-                    {days.map(day => {
-                      const key = `${day}-${time}`;
-                      const isAvailableSlot = event.availabilityTemplate[key];
-                      let bgColor = '#f0f0f0';
-                      if (isAvailableSlot) {
-                        switch (memberAvailability[key]) {
-                          case 1: bgColor = 'lightgreen'; break;
-                          case 2: bgColor = 'khaki'; break;
-                          case 3: bgColor = 'lightcoral'; break;
-                          default: bgColor = 'white'; break;
-                        }
-                      }
-                      return (
-                        <td
-                          key={key}
-                          onClick={() => toggleCell(day, time)}
-                          style={{
-                            backgroundColor: bgColor,
-                            cursor: isAvailableSlot ? 'pointer' : 'not-allowed',
-                            border: '1px solid #ccc',
-                            padding: '6px',
-                            whiteSpace: 'nowrap',
-                            textAlign: 'center'
-                          }}
-                          
-                        />
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
 
           <h4>Send Notification</h4>
           <textarea placeholder="Message for the owner" value={message} onChange={(e) => setMessage(e.target.value)} />
