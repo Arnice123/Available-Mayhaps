@@ -257,17 +257,20 @@ export default function GroupPage() {
   }
   
 
-  const userEmail = useMemo(() => {
+  const userInfo = useMemo(() => {
     const token = localStorage.getItem('token');
     if (!token) return null;
-
+  
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.email;
+      return { email: payload.email, username: payload.username };
     } catch {
       return null;
     }
   }, []);
+  
+  const userEmail = userInfo?.email;
+  
 
   if (!group) return <p>Loading...</p>;
 
@@ -278,7 +281,7 @@ export default function GroupPage() {
       <ul>
         {group.members.map((m, idx) =>
           <li key={idx}>
-            {m.username}
+            {m.username || m.email}
             {userEmail === group.organizerEmail && (
               <button onClick={() => handleDeleteMember(m.email)}>X</button>
             )}
@@ -436,7 +439,7 @@ export default function GroupPage() {
           <ul>
             {event.responses.map((r) => (
               <li key={r.email}>
-                {r.email}
+                {r.username || r.email}
                 <button onClick={() => toggleExclude(r.email)}>
                   {excluded.includes(r.email) ? 'Include' : 'Temporarily Exclude'}
                 </button>
