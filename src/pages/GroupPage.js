@@ -278,7 +278,7 @@ export default function GroupPage() {
       <ul>
         {group.members.map((m, idx) =>
           <li key={idx}>
-            {m.email}
+            {m.username}
             {userEmail === group.organizerEmail && (
               <button onClick={() => handleDeleteMember(m.email)}>X</button>
             )}

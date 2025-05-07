@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const navigate = useNavigate();
 
   async function handleSignup(e) {
@@ -11,7 +12,7 @@ export default function Signup() {
     const res = await fetch('/api/users?action=signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, username }),
     });
   
     const data = await res.json();
@@ -30,6 +31,7 @@ export default function Signup() {
       <h1>Sign Up</h1>
       <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+      <input placeholder="Name" type="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
       <button type="submit">Sign Up</button>
     </form>
   );
