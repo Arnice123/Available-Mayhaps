@@ -96,7 +96,15 @@ export default function AvailabilityGrid({
         <tbody>
           {times.map(time => (
             <tr key={time}>
-              <td>{time}</td>
+              <td style={{
+                padding: '4px 6px',
+                border: '1px solid #ccc',
+                whiteSpace: 'nowrap',
+                textAlign: 'center',
+                fontSize: '14px',
+                lineHeight: '1.2',
+                boxSizing: 'border-box'
+                    }}>{time}</td>
               {selectedDates.map(date => {
                 const key = `${date}-${time}`;
                 const isAvailableSlot = availabilityTemplate ? availabilityTemplate[key] : true;
