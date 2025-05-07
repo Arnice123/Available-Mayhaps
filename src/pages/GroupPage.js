@@ -166,7 +166,7 @@ export default function GroupPage() {
       setGroup(data.group);
     
       const event = data.group.events.find(e => e._id === selectedEventId);
-      if (event && event.responses.length === data.group.members.length) {
+      if (event && event.responses.length >= data.group.members.length) {
         const token = localStorage.getItem('token');
         await fetch('/api/groups/sendNotification', {
           method: 'POST',
