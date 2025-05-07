@@ -394,18 +394,20 @@ export default function GroupPage() {
                   <th></th>
                   {days.map(day => (
                     <th key={day}>
-                      <div
+                      <button
+                        type="button"
+                        disabled
                         style={{
                           background: '#eee',
                           border: '1px solid #ccc',
-                          padding: '10px',
+                          padding: '4px 6px',
+                          cursor: 'default',
                           fontWeight: 'bold',
-                          whiteSpace: 'nowrap',
-                          textAlign: 'center'
+                          whiteSpace: 'nowrap'
                         }}
                       >
                         {format(parseISO(day), 'EEE MMM d')}
-                      </div>
+                      </button>
                     </th>
                   ))}
                 </tr>
@@ -455,6 +457,7 @@ export default function GroupPage() {
               </tbody>
             </table>
           </div>
+
 
 
 
