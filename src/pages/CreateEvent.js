@@ -11,6 +11,7 @@ export default function CreateEvent() {
   const [endDate, setEndDate] = useState('');
   const [startTime, setStartTime] = useState('8am');
   const [endTime, setEndTime] = useState('5pm');
+  const [cooldownActive, setCooldownActive] = useState(false);
 
   const navigate = useNavigate();
 
@@ -87,6 +88,8 @@ export default function CreateEvent() {
       const data = await res.json();
       alert('Failed to create event: ' + (data.message || 'Unknown error'));
     }
+
+    setTimeout(() => setCooldownActive(false), 1000);
   }
 
   return (
@@ -193,7 +196,9 @@ export default function CreateEvent() {
           <p>Please select a valid start and end date.</p>
         )}
 
-        <button type="submit">Create Event</button>
+        <button type="submit" disabled={cooldownActive}>
+          {cooldownActive ? 'Please Wait' : 'Create Event'}
+        </button>
       </form>
     </div>
   );
