@@ -159,6 +159,28 @@ export default function GroupPage() {
 
     if (res.ok) {
       alert('Availability submitted!');
+    
+      // Re-fetch group to get updated responses
+      const res2 = await fetch(`/api/groups/group?groupId=${groupId}`);
+      const data = await res2.json();
+      setGroup(data.group);
+    
+      const event = data.group.events.find(e => e._id === selectedEventId);
+      if (event && event.responses.length === data.group.members.length) {
+        const token = localStorage.getItem('token');
+        await fetch('/api/groups/sendNotification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            groupId,
+            message: `Event: ${event.title}, all members have responded`
+          }),
+        });
+        alert('All users have responded!');
+      }
     } else {
       const data = await res.json();
       alert('Error: ' + (data.message || 'Unknown'));
@@ -481,8 +503,6 @@ export default function GroupPage() {
             <div><span style={{ background: 'rgba(0,128,0,0.66)', padding: '2px 10px' }}></span> = Some marked "Perfect"/"OK"</div>
             <div><span style={{ background: 'rgba(0,128,0,0.33)', padding: '2px 10px' }}></span> = Mostly "Possible, Not Ideal"</div>
           </div>
-
-
           
           {userEmail === group.organizerEmail && (<button onClick={handleEventDeletion}>Delete Event</button> )}          
         </div>          

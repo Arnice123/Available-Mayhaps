@@ -72,7 +72,6 @@ export default function CreateEvent() {
     });
 
     if (res.ok) {
-      alert('Event created and members have been emailed!');
       await fetch('/api/groups/sendNotification', {
         method: 'POST',
         headers: { 
@@ -84,8 +83,7 @@ export default function CreateEvent() {
           message: `Event: ${title} has been created in your Available Mayhaps, respond as soon as available to you!`
         }),
       });
-
-      alert('Notification sent!');
+      alert('Event created and members have been emailed!');
       navigate(`/group/${groupId}`);
     } else {
       const data = await res.json();
