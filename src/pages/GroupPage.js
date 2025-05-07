@@ -390,15 +390,14 @@ export default function GroupPage() {
                           key={key}
                           onClick={() => toggleCell(day, time)}
                           style={{
-                            backgroundColor: isAvailableSlot
-                              ? (isSelected ? 'lightgreen' : 'white')
-                              : '#f0f0f0',
+                            backgroundColor: bgColor,
                             cursor: isAvailableSlot ? 'pointer' : 'not-allowed',
                             border: '1px solid #ccc',
                             padding: '6px',
                             whiteSpace: 'nowrap',
                             textAlign: 'center'
                           }}
+                          
                         />
                       );
                     })}
