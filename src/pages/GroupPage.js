@@ -154,13 +154,14 @@ export default function GroupPage() {
       body: JSON.stringify({
         groupId,
         eventId: selectedEventId,
-        availability: memberAvailability
+        availability: memberAvailability,
+        note: message.trim() || null
       })
     });
 
     if (res.ok) {
       alert('Availability submitted!');
-    
+      setMessage('');    
       /*
       // Re-fetch group to get updated responses
       const res2 = await fetch(`/api/groups/group?groupId=${groupId}`);
@@ -433,6 +434,9 @@ export default function GroupPage() {
               </tbody>
             </table>
           </div>
+
+          <h4>Send Notification</h4>
+          <textarea placeholder="Message for the owner" value={message} onChange={(e) => setMessage(e.target.value)} />
         
           <button onClick={handleSubmitAvailability}>Submit Availability</button>
 
@@ -440,7 +444,10 @@ export default function GroupPage() {
           <ul>
             {event.responses.map((r) => (
               <li key={r.email}>
-                {r.username || r.email}
+                <div>
+                  <strong>{r.username || r.email}</strong>
+                  {r.note && <p style={{ fontStyle: 'italic', margin: '4px 0' }}>{r.note}</p>}
+                </div>
                 <button onClick={() => toggleExclude(r.email)}>
                   {excluded.includes(r.email) ? 'Include' : 'Temporarily Exclude'}
                 </button>
@@ -452,6 +459,7 @@ export default function GroupPage() {
               </li>
             ))}
           </ul>
+
 
           <h4>Combined Availability</h4>
           <div style={{ overflowX: 'auto' }}>

@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const user = authenticateToken(req);
   if (!user) return res.status(401).json({ message: 'Unauthorized' });
 
-  const { groupId, eventId, availability } = req.body;
+  const { groupId, eventId, availability, note } = req.body;
   if (!groupId || !eventId || !availability) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
@@ -32,6 +32,7 @@ export default async function handler(req, res) {
             email: user.email,
             username: user.username,
             availability,
+            note,
             submittedAt: new Date()
           }
         }
