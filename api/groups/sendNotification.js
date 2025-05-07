@@ -23,12 +23,14 @@ export default async function handler(req, res) {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp-relay.brevo.com',
+      port: 587,
       auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD        // app password (not your Gmail login password)
+        user: process.env.EMAIL_USERNAME, // Brevo login email
+        pass: process.env.EMAIL_PASSWORD  // Brevo SMTP key
       }
     });
+    
 
     await transporter.sendMail({
       from: `"${group.name}" <${process.env.EMAIL_USERNAME}>`,
