@@ -47,7 +47,7 @@ export default function GroupPage() {
 
   async function handleAddMember() {
     const token = localStorage.getItem('token');
-
+  
     const res = await fetch('/api/groups/member', {
       method: 'POST',
       headers: {
@@ -56,17 +56,18 @@ export default function GroupPage() {
       },
       body: JSON.stringify({ groupId, memberEmail: newMemberEmail }),
     });
-
+  
     if (res.ok) {
-      setGroup((prevGroup) => ({
-        ...prevGroup,
-        members: [...prevGroup.members, { email: newMemberEmail }],
-      }));
+      const updated = await fetch(`/api/groups/group?groupId=${groupId}`);
+      const data = await updated.json();
+      setGroup(data.group);
+  
       setNewMemberEmail('');
     } else {
       alert('Failed to add member');
     }
   }
+  
 
   async function handleSendNotification() {
     if (cooldownActive) return;
