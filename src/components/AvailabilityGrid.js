@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { parseISO, format } from 'date-fns';
+import './AvailabilityGrid.css'; // Import the CSS file
 
 export default function AvailabilityGrid({
   selectedDates,
@@ -53,9 +54,32 @@ export default function AvailabilityGrid({
     return keys;
   }
 
+  function getCellClassName(key, value, isAvailable) {
+    let className = 'grid-cell';
+    
+    if (!isAvailable) {
+      return `${className} grid-cell-unavailable`;
+    }
+    
+    className += ' grid-cell-available';
+    
+    if (mode === "binary") {
+      className += value ? ' cell-selected' : ' cell-unselected';
+    } else if (mode === "level") {
+      switch (value) {
+        case 1: className += ' cell-level-1'; break;
+        case 2: className += ' cell-level-2'; break;
+        case 3: className += ' cell-level-3'; break;
+        default: className += ' cell-unselected';
+      }
+    }
+    
+    return className;
+  }
+
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table>
+    <div className="availability-grid-container">
+      <table className="availability-grid">
         <thead>
           <tr>
             <th></th>
@@ -63,6 +87,7 @@ export default function AvailabilityGrid({
               <th key={date}>
                 <button
                   type="button"
+                  className="date-header-button"
                   onClick={() => {
                     setAvailability(prev => {
                       const updated = { ...prev };
@@ -78,14 +103,6 @@ export default function AvailabilityGrid({
                       return updated;
                     });
                   }}
-                  style={{
-                    background: '#eee',
-                    border: '1px solid #ccc',
-                    padding: '4px 6px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    whiteSpace: 'nowrap'
-                  }}
                 >
                   {format(parseISO(date), 'EEE MMM d')}
                 </button>
@@ -96,38 +113,17 @@ export default function AvailabilityGrid({
         <tbody>
           {times.map(time => (
             <tr key={time}>
-              <td style={{
-                padding: '4px 6px',
-                border: '1px solid #ccc',
-                whiteSpace: 'nowrap',
-                textAlign: 'center',
-                fontSize: '14px',
-                lineHeight: '1.2',
-                boxSizing: 'border-box'
-                    }}>{time}</td>
+              <td className="time-cell">{time}</td>
               {selectedDates.map(date => {
                 const key = `${date}-${time}`;
                 const isAvailableSlot = availabilityTemplate ? availabilityTemplate[key] : true;
                 const value = availability[key];
 
-                let bgColor = '#f0f0f0';
-                if (isAvailableSlot) {
-                  if (mode === "binary") {
-                    bgColor = value ? 'lightgreen' : 'white';
-                  } else {
-                    switch (value) {
-                      case 1: bgColor = 'lightgreen'; break;
-                      case 2: bgColor = 'khaki'; break;
-                      case 3: bgColor = 'lightcoral'; break;
-                      default: bgColor = 'white';
-                    }
-                  }
-                }
-
                 return (
                   <td
                     key={key}
                     data-key={key}
+                    className={getCellClassName(key, value, isAvailableSlot)}
                     onMouseDown={(e) => {
                       if (!isAvailableSlot) return;
                       e.preventDefault();
@@ -178,14 +174,6 @@ export default function AvailabilityGrid({
                       }
                     }}
                     onTouchEnd={() => setIsMouseDown(false)}
-                    style={{
-                      backgroundColor: bgColor,
-                      border: '1px solid #ccc',
-                      padding: '10px',
-                      cursor: isAvailableSlot ? 'pointer' : 'not-allowed',
-                      whiteSpace: 'nowrap',
-                      textAlign: 'center'
-                    }}
                   />
                 );
               })}

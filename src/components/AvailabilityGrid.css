@@ -1,0 +1,152 @@
+/* AvailabilityGrid.css */
+
+.availability-grid-container {
+    overflow-x: auto;
+    margin: 20px 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  .availability-grid {
+    border-collapse: collapse;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .availability-grid th,
+  .availability-grid td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .availability-grid th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .availability-grid thead tr {
+    background-color: #f5f5f5;
+  }
+  
+  .availability-grid tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  
+  .availability-grid tbody tr:hover {
+    background-color: #f0f7ff;
+  }
+  
+  .date-header-button {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+  
+  .date-header-button:hover {
+    background: #e0e0e0;
+  }
+  
+  .time-cell {
+    padding: 8px 10px;
+    white-space: nowrap;
+    text-align: right;
+    font-size: 14px;
+    line-height: 1.4;
+    background-color: #f5f5f5;
+    font-weight: 500;
+    min-width: 80px;
+  }
+  
+  .grid-cell {
+    width: 90px;
+    height: 36px;
+    transition: background-color 0.15s ease;
+    user-select: none;
+  }
+  
+  .grid-cell:hover {
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.2);
+  }
+  
+  .grid-cell-available {
+    cursor: pointer;
+  }
+  
+  .grid-cell-unavailable {
+    cursor: not-allowed;
+    background-color: #f0f0f0 !important;
+    opacity: 0.6;
+  }
+  
+  /* Cell states for binary mode */
+  .cell-selected {
+    background-color: #a5d6a7 !important;
+  }
+  
+  .cell-unselected {
+    background-color: white;
+  }
+  
+  /* Cell states for level mode */
+  .cell-level-1 {
+    background-color: #a5d6a7 !important; /* Light green */
+  }
+  
+  .cell-level-2 {
+    background-color: #fff59d !important; /* Light yellow */
+  }
+  
+  .cell-level-3 {
+    background-color: #ef9a9a !important; /* Light red */
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .availability-grid td,
+    .availability-grid th {
+      padding: 10px 8px;
+    }
+    
+    .grid-cell {
+      width: 70px;
+      height: 32px;
+    }
+    
+    .time-cell {
+      font-size: 13px;
+      min-width: 70px;
+    }
+    
+    .date-header-button {
+      padding: 5px 8px;
+      font-size: 13px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .availability-grid td,
+    .availability-grid th {
+      padding: 8px 6px;
+    }
+    
+    .grid-cell {
+      width: 60px;
+      height: 30px;
+    }
+    
+    .time-cell {
+      font-size: 12px;
+      min-width: 60px;
+    }
+  }
