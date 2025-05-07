@@ -48,6 +48,9 @@ export default function CreateEvent() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (cooldownActive) return; // Prevent double submission
+    setCooldownActive(true);
+
     const token = localStorage.getItem('token');
 
     const res = await fetch('/api/groups/event', {
