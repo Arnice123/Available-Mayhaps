@@ -349,7 +349,7 @@ export default function GroupPage() {
                           times.forEach(time => {
                             const key = `${day}-${time}`;
                             if (event.availabilityTemplate[key]) {
-                              updated[key] = true;
+                              updated[key] = selectedResponseType;
                             }
                           });
                           return updated;
