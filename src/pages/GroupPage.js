@@ -385,7 +385,7 @@ export default function GroupPage() {
               </li>
             ))}
           </ul>
-
+          
           <h4>Combined Availability</h4>
           <div style={{ overflowX: 'auto' }}>
             <table>
@@ -401,7 +401,10 @@ export default function GroupPage() {
                           padding: '4px 6px',
                           fontWeight: 'bold',
                           whiteSpace: 'nowrap',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          fontSize: '14px',
+                          lineHeight: '1.2',
+                          boxSizing: 'border-box'
                         }}
                       >
                         {format(parseISO(day), 'EEE MMM d')}
@@ -415,10 +418,13 @@ export default function GroupPage() {
                   <tr key={time}>
                     <td
                       style={{
-                        padding: '10px',
+                        padding: '4px 6px',
                         border: '1px solid #ccc',
                         whiteSpace: 'nowrap',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        fontSize: '14px',
+                        lineHeight: '1.2',
+                        boxSizing: 'border-box'
                       }}
                     >
                       {time}
@@ -430,14 +436,9 @@ export default function GroupPage() {
                       const intensity = rawScore / maxScore;
 
                       const isAvailableSlot = event.availabilityTemplate[key];
-                      let backgroundColor = '#f0f0f0';
-
-                      if (isAvailableSlot) {
-                        if (intensity >= 0.67) backgroundColor = 'lightgreen';
-                        else if (intensity >= 0.34) backgroundColor = 'khaki';
-                        else if (intensity > 0) backgroundColor = 'lightcoral';
-                        else backgroundColor = 'white';
-                      }
+                      const backgroundColor = isAvailableSlot
+                        ? `rgba(0, 128, 0, ${intensity})`
+                        : '#f0f0f0';
 
                       return (
                         <td
@@ -445,9 +446,13 @@ export default function GroupPage() {
                           style={{
                             backgroundColor,
                             border: '1px solid #ccc',
-                            padding: '10px',
+                            padding: '4px 6px',
                             whiteSpace: 'nowrap',
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            fontSize: '14px',
+                            lineHeight: '1.2',
+                            boxSizing: 'border-box',
+                            color: intensity > 0.5 ? 'white' : 'black'
                           }}
                         >
                           {isAvailableSlot ? rawScore : ''}
@@ -459,9 +464,6 @@ export default function GroupPage() {
               </tbody>
             </table>
           </div>
-
-
-
 
 
 
