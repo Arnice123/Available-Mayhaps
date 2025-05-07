@@ -160,6 +160,7 @@ export default function GroupPage() {
     if (res.ok) {
       alert('Availability submitted!');
     
+      /*
       // Re-fetch group to get updated responses
       const res2 = await fetch(`/api/groups/group?groupId=${groupId}`);
       const data = await res2.json();
@@ -180,7 +181,7 @@ export default function GroupPage() {
           }),
         });
         alert('All users have responded!');
-      }
+      }*/
     } else {
       const data = await res.json();
       alert('Error: ' + (data.message || 'Unknown'));
@@ -288,10 +289,10 @@ export default function GroupPage() {
       <h2>Add Member</h2>
       <input placeholder="Email" value={newMemberEmail} onChange={(e) => setNewMemberEmail(e.target.value)} />
       <button onClick={handleAddMember}>Add</button>
-
+      {/*
       <h2>Send Notification</h2>
       <textarea placeholder="Message" value={message} onChange={(e) => setMessage(e.target.value)} />
-      <button onClick={handleSendNotification}>Send</button>
+      <button onClick={handleSendNotification}>Send</button>*/}
 
       <h2>Active Events</h2>
       <label>Select an Event:</label>
