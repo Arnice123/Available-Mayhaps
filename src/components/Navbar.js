@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import './Navbar.css' // Import the CSS file
 
 export default function Navbar() {
   const [groups, setGroups] = useState([])
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [groupsDropdownOpen, setGroupsDropdownOpen] = useState(false)
   const token = localStorage.getItem('token')
   const navigate = useNavigate()
 
@@ -37,38 +40,85 @@ export default function Navbar() {
     fetchGroups()
   }, [token])
   
-
   function handleLogout() {
     localStorage.removeItem('token')
     navigate('/login')
   }
 
+  function toggleMobileMenu() {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
+
+  function toggleGroupsDropdown() {
+    setGroupsDropdownOpen(!groupsDropdownOpen)
+  }
+
   return (
-    <nav style={{ padding: '10px', backgroundColor: '#333', color: '#fff' }}>
-      <Link to="/" style={{ marginRight: '10px', color: '#fff' }}>Home</Link>
-      <Link to="/create-group" style={{ marginRight: '10px', color: '#fff' }}>Create Group</Link>
-
-      {groups.length > 0 && (
-        <span style={{ marginRight: '10px' }}>
-          Your Groups:
-          {groups.map((g) => (
-            <Link key={g._id} to={`/group/${g._id}`} style={{ marginLeft: '10px', color: '#fff' }}>
-              {g.name}
-            </Link>
-          ))}
-        </span>
-      )}
-
-      {token ? (
-        <button onClick={handleLogout} style={{ backgroundColor: 'transparent', color: 'white', border: 'none' }}>
-          Logout
+    <nav className={`navbar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+      <div className="navbar-left">
+        <Link to="/" className="navbar-brand">GroupSync</Link>
+        
+        <button className="mobile-menu-button" onClick={toggleMobileMenu}>
+          {mobileMenuOpen ? '✕' : '☰'}
         </button>
-      ) : (
-        <>
-          <Link to="/login" style={{ marginRight: '10px', color: '#fff' }}>Login</Link>
-          <Link to="/signup" style={{ color: '#fff' }}>Signup</Link>
-        </>
-      )}
+      </div>
+
+      <div className="navbar-links">
+        <Link to="/" className="navbar-link">Home</Link>
+        <Link to="/create-group" className="navbar-link">Create Group</Link>
+      </div>
+
+      <div className="navbar-right">
+        {groups.length > 0 && (
+          <div className={`groups-dropdown ${groupsDropdownOpen ? 'open' : ''}`}>
+            <button 
+              className="groups-dropdown-button" 
+              onClick={toggleGroupsDropdown}
+            >
+              Your Groups
+              <span>▼</span>
+            </button>
+            <div className="groups-dropdown-content">
+              {groups.map((g) => (
+                <Link 
+                  key={g._id} 
+                  to={`/group/${g._id}`} 
+                  className="groups-dropdown-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {g.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {token ? (
+          <button 
+            onClick={handleLogout} 
+            className="navbar-button transparent"
+          >
+            Logout
+          </button>
+        ) : (
+          <>
+            <Link 
+              to="/login" 
+              className="navbar-link"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Login
+            </Link>
+            <Link 
+              to="/signup" 
+              className="navbar-button"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Sign Up
+            </Link>
+          </>
+        )}
+      </div>
     </nav>
   )
 }
