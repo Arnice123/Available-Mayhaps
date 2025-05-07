@@ -30,6 +30,7 @@ export default async function handler(req, res) {
         $push: {
           "events.$.responses": {
             email: user.email,
+            username: user.username,
             availability,
             submittedAt: new Date()
           }

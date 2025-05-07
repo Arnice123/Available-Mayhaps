@@ -31,7 +31,7 @@ export default function Signup() {
       <h1>Sign Up</h1>
       <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      <input placeholder="Name" type="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+      <input placeholder="Name" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
       <button type="submit">Sign Up</button>
     </form>
   );
