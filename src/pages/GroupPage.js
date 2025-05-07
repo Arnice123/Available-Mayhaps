@@ -394,20 +394,18 @@ export default function GroupPage() {
                   <th></th>
                   {days.map(day => (
                     <th key={day}>
-                      <button
-                        type="button"
-                        disabled
+                      <div
                         style={{
                           background: '#eee',
                           border: '1px solid #ccc',
                           padding: '4px 6px',
-                          cursor: 'default',
                           fontWeight: 'bold',
-                          whiteSpace: 'nowrap'
+                          whiteSpace: 'nowrap',
+                          textAlign: 'center'
                         }}
                       >
                         {format(parseISO(day), 'EEE MMM d')}
-                      </button>
+                      </div>
                     </th>
                   ))}
                 </tr>
@@ -432,9 +430,14 @@ export default function GroupPage() {
                       const intensity = rawScore / maxScore;
 
                       const isAvailableSlot = event.availabilityTemplate[key];
-                      const backgroundColor = isAvailableSlot
-                        ? `rgba(0, 128, 0, ${intensity})`
-                        : '#f0f0f0';
+                      let backgroundColor = '#f0f0f0';
+
+                      if (isAvailableSlot) {
+                        if (intensity >= 0.67) backgroundColor = 'lightgreen';
+                        else if (intensity >= 0.34) backgroundColor = 'khaki';
+                        else if (intensity > 0) backgroundColor = 'lightcoral';
+                        else backgroundColor = 'white';
+                      }
 
                       return (
                         <td
@@ -444,8 +447,7 @@ export default function GroupPage() {
                             border: '1px solid #ccc',
                             padding: '10px',
                             whiteSpace: 'nowrap',
-                            textAlign: 'center',
-                            color: intensity > 0.5 ? 'white' : 'black'
+                            textAlign: 'center'
                           }}
                         >
                           {isAvailableSlot ? rawScore : ''}
@@ -457,6 +459,7 @@ export default function GroupPage() {
               </tbody>
             </table>
           </div>
+
 
 
 
