@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { format, eachDayOfInterval, parseISO } from 'date-fns';
 
 import AvailabilityGrid from '../components/AvailabilityGrid.js';
+import './GroupPage.css';
 
 const TIMES = [
   '12am','1am','2am','3am','4am','5am','6am','7am','8am','9am','10am','11am',
@@ -35,59 +36,81 @@ export default function GroupPage() {
   const [excluded, setExcluded] = useState([]);
   const [cooldownActive, setCooldownActive] = useState(false);
   const [selectedResponseType, setSelectedResponseType] = useState(1); // 1: perfect, 2: ok, 3: possible
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchGroup() {
-      const res = await fetch(`/api/groups/group?groupId=${groupId}`);
-      const data = await res.json();
-      setGroup(data.group);
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/groups/group?groupId=${groupId}`);
+        const data = await res.json();
+        setGroup(data.group);
+      } catch (error) {
+        console.error("Failed to fetch group:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
     if (groupId) fetchGroup();
   }, [groupId]);
 
   async function handleAddMember() {
+    if (!newMemberEmail.trim()) {
+      alert('Please enter an email address');
+      return;
+    }
+    
     const token = localStorage.getItem('token');
   
-    const res = await fetch('/api/groups/member', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ groupId, memberEmail: newMemberEmail }),
-    });
-  
-    if (res.ok) {
-      const updated = await fetch(`/api/groups/group?groupId=${groupId}`);
-      const data = await updated.json();
-      setGroup(data.group);
-  
-      setNewMemberEmail('');
-    } else {
-      alert('Failed to add member');
+    try {
+      const res = await fetch('/api/groups/member', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ groupId, memberEmail: newMemberEmail }),
+      });
+    
+      if (res.ok) {
+        const updated = await fetch(`/api/groups/group?groupId=${groupId}`);
+        const data = await updated.json();
+        setGroup(data.group);
+        setNewMemberEmail('');
+      } else {
+        const errorData = await res.json();
+        alert('Failed to add member: ' + (errorData.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error("Error adding member:", error);
+      alert('Failed to add member. Please try again.');
     }
   }
   
-
   async function handleSendNotification() {
-    if (cooldownActive) return;
+    if (cooldownActive || !message.trim()) return;
     setCooldownActive(true);
 
     const token = localStorage.getItem('token');
-    await fetch('/api/groups/sendNotification', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ groupId, message }),
-    });
-    alert('Notification sent!');
-    setMessage('');
-
-    setTimeout(() => setCooldownActive(false), 1000);
+    try {
+      await fetch('/api/groups/sendNotification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ groupId, message }),
+      });
+      alert('Notification sent!');
+      setMessage('');
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      alert('Failed to send notification. Please try again.');
+    } finally {
+      setTimeout(() => setCooldownActive(false), 1000);
+    }
   }
 
   async function handleDeleteGroup() {
@@ -96,21 +119,26 @@ export default function GroupPage() {
 
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/groups/group', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ groupId })
-    });
+    try {
+      const res = await fetch('/api/groups/group', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ groupId })
+      });
 
-    if (res.ok) {
-      alert('Group deleted.');
-      navigate('/');
-    } else {
-      const data = await res.json();
-      alert('Failed to delete group: ' + (data.message || 'Unknown error'));
+      if (res.ok) {
+        alert('Group deleted.');
+        navigate('/');
+      } else {
+        const data = await res.json();
+        alert('Failed to delete group: ' + (data.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      alert('Failed to delete group. Please try again.');
     }
   }
 
@@ -120,24 +148,29 @@ export default function GroupPage() {
 
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/groups/member', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ groupId, emailToDelete })
-    });
+    try {
+      const res = await fetch('/api/groups/member', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ groupId, emailToDelete })
+      });
 
-    if (res.ok) {
-      alert(`${emailToDelete} removed from group.`);
-      setGroup((prevGroup) => ({
-        ...prevGroup,
-        members: prevGroup.members.filter(m => m.email !== emailToDelete)
-      }));
-    } else {
-      const data = await res.json();
-      alert('Failed to delete user: ' + (data.message || 'Unknown error'));
+      if (res.ok) {
+        alert(`${emailToDelete} removed from group.`);
+        setGroup((prevGroup) => ({
+          ...prevGroup,
+          members: prevGroup.members.filter(m => m.email !== emailToDelete)
+        }));
+      } else {
+        const data = await res.json();
+        alert('Failed to delete user: ' + (data.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error("Error deleting member:", error);
+      alert('Failed to delete member. Please try again.');
     }
   }
 
@@ -147,48 +180,32 @@ export default function GroupPage() {
 
   async function handleSubmitAvailability() {
     const token = localStorage.getItem('token');
-    const res = await fetch('/api/groups/submitAvailability', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        groupId,
-        eventId: selectedEventId,
-        availability: memberAvailability,
-        note: message.trim() || null
-      })
-    });
-
-    if (res.ok) {
-      alert('Availability submitted!');
-      setMessage('');    
-      /*
-      // Re-fetch group to get updated responses
-      const res2 = await fetch(`/api/groups/group?groupId=${groupId}`);
-      const data = await res2.json();
-      setGroup(data.group);
     
-      const event = data.group.events.find(e => e._id === selectedEventId);
-      if (event && event.responses.length >= data.group.members.length) {
-        const token = localStorage.getItem('token');
-        await fetch('/api/groups/sendNotification', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            groupId,
-            message: `Event: ${event.title}, all members have responded`
-          }),
-        });
-        alert('All users have responded!');
-      }*/
-    } else {
-      const data = await res.json();
-      alert('Error: ' + (data.message || 'Unknown'));
+    try {
+      const res = await fetch('/api/groups/submitAvailability', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          groupId,
+          eventId: selectedEventId,
+          availability: memberAvailability,
+          note: message.trim() || null
+        })
+      });
+
+      if (res.ok) {
+        alert('Availability submitted!');
+        setMessage('');    
+      } else {
+        const data = await res.json();
+        alert('Error: ' + (data.message || 'Unknown'));
+      }
+    } catch (error) {
+      console.error("Error submitting availability:", error);
+      alert('Failed to submit availability. Please try again.');
     }
   }
 
@@ -201,34 +218,39 @@ export default function GroupPage() {
   async function permanentlyExclude(email) {
     const token = localStorage.getItem('token');
 
-    const res = await fetch('/api/groups/event', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ groupId, eventId: selectedEventId, emailToDelete: email })
-    });
-
-    if (res.ok) {
-      alert(`Deleted response for ${email}`);
-      setGroup((prev) => {
-        const updatedEvents = prev.events.map((event) => {
-          if (event._id !== selectedEventId) return event;
-
-          const updatedResponses = event.responses.filter(r => r.email !== email);
-
-          return {
-            ...event,
-            responses: updatedResponses
-          };
-        });
-
-        return { ...prev, events: updatedEvents };
+    try {
+      const res = await fetch('/api/groups/event', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ groupId, eventId: selectedEventId, emailToDelete: email })
       });
-    } else {
-      const data = await res.json();
-      alert(`Failed to delete response: ${data.message || 'Unknown error'}`);
+
+      if (res.ok) {
+        alert(`Deleted response for ${email}`);
+        setGroup((prev) => {
+          const updatedEvents = prev.events.map((event) => {
+            if (event._id !== selectedEventId) return event;
+
+            const updatedResponses = event.responses.filter(r => r.email !== email);
+
+            return {
+              ...event,
+              responses: updatedResponses
+            };
+          });
+
+          return { ...prev, events: updatedEvents };
+        });
+      } else {
+        const data = await res.json();
+        alert(`Failed to delete response: ${data.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error("Error excluding response:", error);
+      alert('Failed to exclude response. Please try again.');
     }
   }
 
@@ -238,25 +260,30 @@ export default function GroupPage() {
   
     const token = localStorage.getItem('token');
   
-    const res = await fetch('/api/groups/event', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ groupId, eventId: selectedEventId })
-    });
-  
-    if (res.ok) {
-      alert('Event deleted.');
-      setGroup(prev => ({
-        ...prev,
-        events: prev.events.filter(e => e._id !== selectedEventId)
-      }));
-      setSelectedEventId('');
-    } else {
-      const data = await res.json();
-      alert('Failed to delete event: ' + (data.message || 'Unknown error'));
+    try {
+      const res = await fetch('/api/groups/event', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ groupId, eventId: selectedEventId })
+      });
+    
+      if (res.ok) {
+        alert('Event deleted.');
+        setGroup(prev => ({
+          ...prev,
+          events: prev.events.filter(e => e._id !== selectedEventId)
+        }));
+        setSelectedEventId('');
+      } else {
+        const data = await res.json();
+        alert('Failed to delete event: ' + (data.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert('Failed to delete event. Please try again.');
     }
   }
   
@@ -275,220 +302,265 @@ export default function GroupPage() {
   
   const userEmail = userInfo?.email;
   
+  if (isLoading) return <div className="loading">Loading group information...</div>;
+  if (!group) return <div className="loading">Group not found</div>;
 
-  if (!group) return <p>Loading...</p>;
+  const isOrganizer = userEmail === group.organizerEmail;
 
   return (
-    <div>
-      <h1>Group: {group.name}</h1>
-      <h2>Members:</h2>
-      <ul>
-        {group.members.map((m, idx) =>
-          <li key={idx}>
-            {m.username || m.email}
-            {userEmail === group.organizerEmail && (
-              <button onClick={() => handleDeleteMember(m.email)}>X</button>
-            )}
-          </li>
-        )}
-      </ul>
+    <div className="group-page">
+      <header className="group-header">
+        <h1>{group.name}</h1>
+      </header>
 
-      <h2>Add Member</h2>
-      <input placeholder="Email" value={newMemberEmail} onChange={(e) => setNewMemberEmail(e.target.value)} />
-      <button onClick={handleAddMember}>Add</button>
-      {/*
-      <h2>Send Notification</h2>
-      <textarea placeholder="Message" value={message} onChange={(e) => setMessage(e.target.value)} />
-      <button onClick={handleSendNotification}>Send</button>*/}
-
-      <h2>Active Events</h2>
-      <label>Select an Event:</label>
-      <select value={selectedEventId} onChange={(e) => setSelectedEventId(e.target.value)}>
-        <option value="">-- Choose an Event --</option>
-        {group.events.map((event) => (
-          <option key={event._id} value={event._id}>
-            {event.title}
-          </option>
-        ))}
-      </select>
-
-      {selectedEventId && (() => {
-        const event = group.events.find(e => e._id === selectedEventId);
-        if (!event) return <p>Event not found.</p>;
-
-        const days = getDateList(event.startDate, event.endDate);
-        const times = getTimeRange(event.startTime, event.endTime);
-
-        const includedResponses = event.responses.filter(
-          r => !excluded.includes(r.email)
-        );
-
-        const aggregate = {};
-        for (const res of includedResponses) {
-          for (const [slot, isAvailable] of Object.entries(res.availability)) {
-            if (isAvailable) {
-              aggregate[slot] = (aggregate[slot] || 0) + 1;
-            }
-          }
-        }             
-
-        return (
-          <div>
-          <h3>{event.title}</h3>
-          <p>{event.description}</p>
-
-          <div style={{ marginBottom: '10px' }}>
-            <span>Select response type: </span>
-            <button onClick={() => setSelectedResponseType(1)} style={{ backgroundColor: selectedResponseType === 1 ? 'lightgreen' : 'white' }}>
-              Perfect Time
-            </button>
-            <button onClick={() => setSelectedResponseType(2)} style={{ backgroundColor: selectedResponseType === 2 ? 'khaki' : 'white' }}>
-              OK Time
-            </button>
-            <button onClick={() => setSelectedResponseType(3)} style={{ backgroundColor: selectedResponseType === 3 ? 'lightcoral' : 'white' }}>
-              Possible, Not Ideal
-            </button>
-          </div>
-
-          <AvailabilityGrid
-            selectedDates={days}
-            times={times}
-            availability={memberAvailability}
-            setAvailability={setMemberAvailability}
-            availabilityTemplate={event.availabilityTemplate}
-            mode="level"
-            selectedResponseType={selectedResponseType}
-          />
-
-
-          <h4>Send Notification</h4>
-          <textarea placeholder="Message for the owner" value={message} onChange={(e) => setMessage(e.target.value)} />
-        
-          <button onClick={handleSubmitAvailability}>Submit Availability</button>
-
-          <h4>Filtered Responses:</h4>
-          <ul>
-            {event.responses.map((r) => (
-              <li key={r.email}>
-                <div>
-                  <strong>{r.username || r.email}</strong>
-                  {r.note && <p style={{ fontStyle: 'italic', margin: '4px 0' }}>{r.note}</p>}
-                </div>
-                <button onClick={() => toggleExclude(r.email)}>
-                  {excluded.includes(r.email) ? 'Include' : 'Temporarily Exclude'}
+      <div className="section">
+        <div className="section-header">
+          <h2>Members</h2>
+        </div>
+        <ul className="members-list">
+          {group.members.map((m, idx) => (
+            <li key={idx} className="member-item">
+              <span>{m.username || m.email}</span>
+              {isOrganizer && (
+                <button 
+                  className="member-delete" 
+                  onClick={() => handleDeleteMember(m.email)}
+                  title="Remove member"
+                >
+                  ×
                 </button>
-                {includedResponses.some(res => res.email === r.email) && (
-                  <button onClick={() => permanentlyExclude(r.email)}>
-                    Permanently Exclude
-                  </button>
-                )}
-              </li>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        <div className="add-member">
+          <input 
+            placeholder="Email" 
+            value={newMemberEmail} 
+            onChange={(e) => setNewMemberEmail(e.target.value)} 
+          />
+          <button className="btn btn-primary" onClick={handleAddMember}>Add Member</button>
+        </div>
+      </div>
+
+      <div className="section">
+        <div className="section-header">
+          <h2>Events</h2>
+        </div>
+        
+        <div className="event-selector">
+          <label>Select an Event:</label>
+          <select 
+            value={selectedEventId} 
+            onChange={(e) => setSelectedEventId(e.target.value)}
+          >
+            <option value="">-- Choose an Event --</option>
+            {group.events.map((event) => (
+              <option key={event._id} value={event._id}>
+                {event.title}
+              </option>
             ))}
-          </ul>
-          
-          <h4>Combined Availability</h4>
-          <div style={{ overflowX: 'auto' }}>
-            <table>
-              <thead>
-                <tr>
-                  <th></th>
-                  {days.map(day => (
-                    <th key={day}>
-                      <div
-                        style={{
-                          background: '#eee',
-                          border: '1px solid #ccc',
-                          padding: '4px 6px',
-                          fontWeight: 'bold',
-                          whiteSpace: 'nowrap',
-                          textAlign: 'center',
-                          fontSize: '14px',
-                          lineHeight: '1.2',
-                          boxSizing: 'border-box'
-                        }}
-                      >
-                        {format(parseISO(day), 'EEE MMM d')}
+          </select>
+        </div>
+
+        {selectedEventId && (() => {
+          const event = group.events.find(e => e._id === selectedEventId);
+          if (!event) return <p>Event not found.</p>;
+
+          const days = getDateList(event.startDate, event.endDate);
+          const times = getTimeRange(event.startTime, event.endTime);
+
+          const includedResponses = event.responses.filter(
+            r => !excluded.includes(r.email)
+          );
+
+          const aggregate = {};
+          for (const res of includedResponses) {
+            for (const [slot, isAvailable] of Object.entries(res.availability)) {
+              if (isAvailable) {
+                aggregate[slot] = (aggregate[slot] || 0) + 1;
+              }
+            }
+          }             
+
+          return (
+            <div>
+              <div className="event-details">
+                <h3 className="event-title">{event.title}</h3>
+                <p className="event-description">{event.description}</p>
+              </div>
+
+              <div className="response-type">
+                <button 
+                  className={`response-btn ${selectedResponseType === 1 ? 'active-perfect' : ''}`}
+                  onClick={() => setSelectedResponseType(1)}
+                >
+                  Perfect Time
+                </button>
+                <button 
+                  className={`response-btn ${selectedResponseType === 2 ? 'active-ok' : ''}`}
+                  onClick={() => setSelectedResponseType(2)}
+                >
+                  OK Time
+                </button>
+                <button 
+                  className={`response-btn ${selectedResponseType === 3 ? 'active-possible' : ''}`}
+                  onClick={() => setSelectedResponseType(3)}
+                >
+                  Possible, Not Ideal
+                </button>
+              </div>
+
+              <AvailabilityGrid
+                selectedDates={days}
+                times={times}
+                availability={memberAvailability}
+                setAvailability={setMemberAvailability}
+                availabilityTemplate={event.availabilityTemplate}
+                mode="level"
+                selectedResponseType={selectedResponseType}
+              />
+
+              <div className="notification-area">
+                <h4>Add a note with your availability (optional)</h4>
+                <textarea 
+                  placeholder="Message for the group" 
+                  value={message} 
+                  onChange={(e) => setMessage(e.target.value)} 
+                />
+                <div style={{ marginTop: '10px' }}>
+                  <button className="btn btn-success" onClick={handleSubmitAvailability}>
+                    Submit Availability
+                  </button>
+                </div>
+              </div>
+
+              <div className="responses-section">
+                <h4>Member Responses:</h4>
+                <ul className="responses-list">
+                  {event.responses.map((r) => (
+                    <li key={r.email} className="response-item">
+                      <div className="response-info">
+                        <strong>{r.username || r.email}</strong>
+                        {r.note && <p className="response-note">"{r.note}"</p>}
                       </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {times.map(time => (
-                  <tr key={time}>
-                    <td
-                      style={{
-                        padding: '4px 6px',
-                        border: '1px solid #ccc',
-                        whiteSpace: 'nowrap',
-                        textAlign: 'center',
-                        fontSize: '14px',
-                        lineHeight: '1.2',
-                        boxSizing: 'border-box'
-                      }}
-                    >
-                      {time}
-                    </td>
-                    {days.map(day => {
-                      const key = `${day}-${time}`;
-                      const rawScore = aggregate[key] || 0;
-                      const maxScore = includedResponses.length * 3 || 1;
-                      const intensity = rawScore / maxScore;
-
-                      const isAvailableSlot = event.availabilityTemplate[key];
-                      const backgroundColor = isAvailableSlot
-                        ? `rgba(0, 128, 0, ${intensity})`
-                        : '#f0f0f0';
-
-                      return (
-                        <td
-                          key={key}
-                          style={{
-                            backgroundColor,
-                            border: '1px solid #ccc',
-                            padding: '4px 6px',
-                            whiteSpace: 'nowrap',
-                            textAlign: 'center',
-                            fontSize: '14px',
-                            lineHeight: '1.2',
-                            boxSizing: 'border-box',
-                            color: intensity > 0.5 ? 'white' : 'black'
-                          }}
+                      <div className="response-actions">
+                        <button 
+                          className="btn btn-sm"
+                          onClick={() => toggleExclude(r.email)}
                         >
-                          {isAvailableSlot ? rawScore : ''}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          {excluded.includes(r.email) ? 'Include' : 'Temporarily Exclude'}
+                        </button>
+                        {includedResponses.some(res => res.email === r.email) && (
+                          <button 
+                            className="btn btn-sm btn-danger"
+                            onClick={() => permanentlyExclude(r.email)}
+                          >
+                            Permanently Exclude
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="combined-availability">
+                <h4>Combined Availability</h4>
+                <div style={{ overflowX: 'auto' }}>
+                  <table className="availability-table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        {days.map(day => (
+                          <th key={day}>
+                            {format(parseISO(day), 'EEE MMM d')}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {times.map(time => (
+                        <tr key={time}>
+                          <td>{time}</td>
+                          {days.map(day => {
+                            const key = `${day}-${time}`;
+                            const rawScore = aggregate[key] || 0;
+                            const maxScore = includedResponses.length * 3 || 1;
+                            const intensity = rawScore / maxScore;
+
+                            const isAvailableSlot = event.availabilityTemplate[key];
+                            const backgroundColor = isAvailableSlot
+                              ? `rgba(0, 128, 0, ${intensity})`
+                              : '#f0f0f0';
+
+                            return (
+                              <td
+                                key={key}
+                                style={{
+                                  backgroundColor,
+                                  color: intensity > 0.5 ? 'white' : 'black'
+                                }}
+                              >
+                                {isAvailableSlot ? rawScore : ''}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="availability-legend">
+                  <strong>Legend:</strong>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: 'rgba(0,128,0,1)' }}></span>
+                    All users marked "Perfect Time"
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: 'rgba(0,128,0,0.66)' }}></span>
+                    Some marked "Perfect"/"OK"
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: 'rgba(0,128,0,0.33)' }}></span>
+                    Mostly "Possible, Not Ideal"
+                  </div>
+                </div>
+                
+                {isOrganizer && (
+                  <div style={{ marginTop: '20px' }}>
+                    <button className="btn btn-danger" onClick={handleEventDeletion}>
+                      Delete Event
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>          
+          );
+        })()}
+
+        {isOrganizer && (
+          <div style={{ marginTop: '20px' }}>
+            <button className="btn btn-primary" onClick={handleCreateEvent}>
+              Create New Event
+            </button>
           </div>
+        )}
+      </div>
 
-
-
-          <div style={{ marginTop: '10px' }}>
-            <strong>Legend:</strong>
-            <div><span style={{ background: 'rgba(0,128,0,1)', padding: '2px 10px' }}></span> = All users marked "Perfect Time"</div>
-            <div><span style={{ background: 'rgba(0,128,0,0.66)', padding: '2px 10px' }}></span> = Some marked "Perfect"/"OK"</div>
-            <div><span style={{ background: 'rgba(0,128,0,0.33)', padding: '2px 10px' }}></span> = Mostly "Possible, Not Ideal"</div>
-          </div>
-          
-          {userEmail === group.organizerEmail && (<button onClick={handleEventDeletion}>Delete Event</button> )}          
-        </div>          
-        );
-      })()}
-
-      {userEmail === group.organizerEmail && (
-        <>
-          <h2>Create Event</h2>
-          <button onClick={handleCreateEvent}>Create Event</button>
-
+      {isOrganizer && (
+        <div className="danger-zone">
           <h2>Danger Zone</h2>
-          <button onClick={handleDeleteGroup} style={{ backgroundColor: 'red', color: 'white' }}>
+          <p>Permanently delete this group and all associated events.</p>
+          <button 
+            className="btn btn-danger" 
+            onClick={handleDeleteGroup}
+          >
             Delete Group
           </button>
-        </>
+        </div>
       )}
     </div>
   );
