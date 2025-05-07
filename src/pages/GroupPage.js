@@ -398,9 +398,10 @@ export default function GroupPage() {
                         style={{
                           background: '#eee',
                           border: '1px solid #ccc',
-                          padding: '4px 6px',
+                          padding: '10px',
                           fontWeight: 'bold',
-                          whiteSpace: 'nowrap'
+                          whiteSpace: 'nowrap',
+                          textAlign: 'center'
                         }}
                       >
                         {format(parseISO(day), 'EEE MMM d')}
@@ -412,7 +413,16 @@ export default function GroupPage() {
               <tbody>
                 {times.map(time => (
                   <tr key={time}>
-                    <td style={{ padding: '6px', whiteSpace: 'nowrap' }}>{time}</td>
+                    <td
+                      style={{
+                        padding: '10px',
+                        border: '1px solid #ccc',
+                        whiteSpace: 'nowrap',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {time}
+                    </td>
                     {days.map(day => {
                       const key = `${day}-${time}`;
                       const rawScore = aggregate[key] || 0;
@@ -430,10 +440,10 @@ export default function GroupPage() {
                           style={{
                             backgroundColor,
                             border: '1px solid #ccc',
-                            textAlign: 'center',
                             padding: '10px',
-                            color: intensity > 0.5 ? 'white' : 'black',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            textAlign: 'center',
+                            color: intensity > 0.5 ? 'white' : 'black'
                           }}
                         >
                           {isAvailableSlot ? rawScore : ''}
@@ -445,6 +455,7 @@ export default function GroupPage() {
               </tbody>
             </table>
           </div>
+
 
 
 
