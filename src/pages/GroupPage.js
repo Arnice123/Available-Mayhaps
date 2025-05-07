@@ -386,16 +386,25 @@ export default function GroupPage() {
             ))}
           </ul>
 
-
           <h4>Combined Availability</h4>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ whiteSpace: 'nowrap' }}>
+            <table>
               <thead>
                 <tr>
                   <th></th>
                   {days.map(day => (
-                    <th key={day} style={{ padding: '6px', whiteSpace: 'nowrap' }}>
-                      {format(parseISO(day), 'EEE MMM d')}
+                    <th key={day}>
+                      <div
+                        style={{
+                          background: '#eee',
+                          border: '1px solid #ccc',
+                          padding: '4px 6px',
+                          fontWeight: 'bold',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {format(parseISO(day), 'EEE MMM d')}
+                      </div>
                     </th>
                   ))}
                 </tr>
@@ -407,10 +416,11 @@ export default function GroupPage() {
                     {days.map(day => {
                       const key = `${day}-${time}`;
                       const rawScore = aggregate[key] || 0;
-                      const maxScore = includedResponses.length * 3 || 1; // 3 = max per user
+                      const maxScore = includedResponses.length * 3 || 1;
                       const intensity = rawScore / maxScore;
 
-                      const backgroundColor = event.availabilityTemplate[key]
+                      const isAvailableSlot = event.availabilityTemplate[key];
+                      const backgroundColor = isAvailableSlot
                         ? `rgba(0, 128, 0, ${intensity})`
                         : '#f0f0f0';
 
@@ -421,12 +431,12 @@ export default function GroupPage() {
                             backgroundColor,
                             border: '1px solid #ccc',
                             textAlign: 'center',
-                            padding: '6px',
+                            padding: '10px',
                             color: intensity > 0.5 ? 'white' : 'black',
                             whiteSpace: 'nowrap'
                           }}
                         >
-                          {event.availabilityTemplate[key] ? rawScore : ''}
+                          {isAvailableSlot ? rawScore : ''}
                         </td>
                       );
                     })}
@@ -435,6 +445,8 @@ export default function GroupPage() {
               </tbody>
             </table>
           </div>
+
+
 
           <div style={{ marginTop: '10px' }}>
             <strong>Legend:</strong>
