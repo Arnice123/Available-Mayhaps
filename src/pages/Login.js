@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './Login.css';
+import './Auth.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -70,9 +70,6 @@ export default function Login() {
             required
             autoComplete="current-password"
           />
-          <div className="forgot-password">
-            <Link to="/forgot-password" className="auth-link">Forgot password?</Link>
-          </div>
         </div>
         
         <button 

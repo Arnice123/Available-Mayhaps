@@ -1,4 +1,4 @@
-/* Login.css */
+/* Auth.css */
 
 .auth-container {
   max-width: 450px;
@@ -7,6 +7,7 @@
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease-out;
 }
 
 .auth-title {
@@ -55,8 +56,6 @@
 }
 
 .auth-button {
-  background-color: #3498db;
-  color: white;
   border: none;
   border-radius: 4px;
   padding: 0.75rem 1rem;
@@ -65,10 +64,21 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
   margin-top: 0.5rem;
+  color: white;
 }
 
-.auth-button:hover {
+/* Differentiate button color by form type */
+.auth-container.login .auth-button {
+  background-color: #3498db;
+}
+.auth-container.login .auth-button:hover {
   background-color: #2980b9;
+}
+.auth-container.signup .auth-button {
+  background-color: #2ecc71;
+}
+.auth-container.signup .auth-button:hover {
+  background-color: #27ae60;
 }
 
 .auth-button:disabled {
@@ -131,14 +141,9 @@
   margin-top: 0.5rem;
 }
 
-/* Animation */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-.auth-container {
-  animation: fadeIn 0.4s ease-out;
 }
 
 /* Mobile responsiveness */
@@ -147,7 +152,7 @@
     margin: 2rem 1rem;
     padding: 1.5rem;
   }
-  
+
   .auth-title {
     font-size: 1.5rem;
   }

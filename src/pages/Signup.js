@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Auth.css'
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -14,25 +15,63 @@ export default function Signup() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, username }),
     });
-  
+
     const data = await res.json();
     console.log('Signup response:', res.status, data);
-  
+
     if (res.ok) {
       navigate('/login');
     } else {
       alert(data.message || 'Signup failed');
     }
   }
-  
 
   return (
-    <form onSubmit={handleSignup}>
-      <h1>Sign Up</h1>
-      <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      <input placeholder="Name" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
-      <button type="submit">Sign Up</button>
-    </form>
+    <>
+      <div className="auth-container signup">
+        <h1 className="auth-title">Sign Up</h1>
+        <form className="auth-form" onSubmit={handleSignup}>
+          <div className="auth-form-group">
+            <label className="auth-label">Email</label>
+            <input
+              className="auth-input"
+              placeholder="your@email.com"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label className="auth-label">Password</label>
+            <input
+              className="auth-input"
+              type="password"
+              placeholder="Your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label className="auth-label">Name</label>
+            <input
+              className="auth-input"
+              type="text"
+              placeholder="Your name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          <button className="auth-button" type="submit">
+            Sign Up
+          </button>
+        </form>
+      </div>
+    </>
   );
 }
