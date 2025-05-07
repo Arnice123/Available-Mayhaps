@@ -445,10 +445,12 @@ export default function GroupPage() {
                     <td style={{ padding: '6px', whiteSpace: 'nowrap' }}>{time}</td>
                     {days.map(day => {
                       const key = `${day}-${time}`;
-                      const count = aggregate[key] || 0;
-                      const max = includedResponses.length || 1;
+                      const rawScore = aggregate[key] || 0;
+                      const maxScore = includedResponses.length * 3 || 1; // 3 = max per user
+                      const intensity = rawScore / maxScore;
+
                       const backgroundColor = event.availabilityTemplate[key]
-                        ? `rgba(0, 200, 0, ${count / max})`
+                        ? `rgba(0, 128, 0, ${intensity})`
                         : '#f0f0f0';
 
                       return (
@@ -459,11 +461,11 @@ export default function GroupPage() {
                             border: '1px solid #ccc',
                             textAlign: 'center',
                             padding: '6px',
-                            color: count > max * 0.5 ? 'white' : 'black',
+                            color: intensity > 0.5 ? 'white' : 'black',
                             whiteSpace: 'nowrap'
                           }}
                         >
-                          {event.availabilityTemplate[key] ? count : ''}
+                          {event.availabilityTemplate[key] ? rawScore : ''}
                         </td>
                       );
                     })}
@@ -472,6 +474,15 @@ export default function GroupPage() {
               </tbody>
             </table>
           </div>
+
+          <div style={{ marginTop: '10px' }}>
+            <strong>Legend:</strong>
+            <div><span style={{ background: 'rgba(0,128,0,1)', padding: '2px 10px' }}></span> = All users marked "Perfect Time"</div>
+            <div><span style={{ background: 'rgba(0,128,0,0.66)', padding: '2px 10px' }}></span> = Some marked "Perfect"/"OK"</div>
+            <div><span style={{ background: 'rgba(0,128,0,0.33)', padding: '2px 10px' }}></span> = Mostly "Possible, Not Ideal"</div>
+          </div>
+
+
           
           {userEmail === group.organizerEmail && (<button onClick={handleEventDeletion}>Delete Event</button> )}          
         </div>          
