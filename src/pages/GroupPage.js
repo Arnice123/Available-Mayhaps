@@ -37,6 +37,7 @@ export default function GroupPage() {
   const [cooldownActive, setCooldownActive] = useState(false);
   const [selectedResponseType, setSelectedResponseType] = useState(1); // 1: perfect, 2: ok, 3: possible
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
   const navigate = useNavigate();
 
