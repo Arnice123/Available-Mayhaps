@@ -490,23 +490,22 @@ export default function GroupPage() {
                           {days.map(day => {
                             const key = `${day}-${time}`;
                             const rawScore = aggregate[key] || 0;
-                            const maxScore = includedResponses.length * 3 || 1;
-                            const intensity = rawScore / maxScore;
+                            const maxScore = Math.max(includedResponses.length * 3, 1);
+                            const intensity = rawScore / maxScore;                            
 
                             const isAvailableSlot = event.availabilityTemplate[key];
                             const backgroundColor = isAvailableSlot
                               ? `rgba(0, 128, 0, ${intensity})`
                               : '#f0f0f0';
 
+                            const count = includedResponses.reduce((acc, res) => {
+                              const level = res.availability?.[key];
+                              return level > 0 ? acc + 1 : acc;
+                            }, 0);
+
                             return (
-                              <td
-                                key={key}
-                                style={{
-                                  backgroundColor,
-                                  color: intensity > 0.5 ? 'white' : 'black'
-                                }}
-                              >
-                                {isAvailableSlot ? rawScore : ''}
+                              <td key={key} style={{ backgroundColor, color: intensity > 0.5 ? 'white' : 'black' }}>
+                                {isAvailableSlot ? count : ''}
                               </td>
                             );
                           })}
