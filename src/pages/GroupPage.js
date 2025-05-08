@@ -491,7 +491,7 @@ export default function GroupPage() {
                             const key = `${day}-${time}`;
                             const rawScore = aggregate[key] || 0;
                             const maxScore = Math.max(includedResponses.length * 3, 1);
-                            const intensity = rawScore / maxScore;                            
+                            const intensity = rawScore / maxScore;
 
                             const isAvailableSlot = event.availabilityTemplate[key];
                             const backgroundColor = isAvailableSlot
@@ -504,7 +504,17 @@ export default function GroupPage() {
                             }, 0);
 
                             return (
-                              <td key={key} style={{ backgroundColor, color: intensity > 0.5 ? 'white' : 'black' }}>
+                              <td
+                                key={key}
+                                onClick={() => setSelectedSlot(key === selectedSlot ? null : key)}
+                                style={{
+                                  backgroundColor,
+                                  color: intensity > 0.5 ? 'white' : 'black',
+                                  cursor: isAvailableSlot ? 'pointer' : 'default',
+                                  border: selectedSlot === key ? '2px solid #3498db' : ''
+                                }}
+                                title={`Score: ${rawScore}, Respondents: ${count}`}
+                              >
                                 {isAvailableSlot ? count : ''}
                               </td>
                             );
@@ -513,7 +523,28 @@ export default function GroupPage() {
                       ))}
                     </tbody>
                   </table>
+
+                  {selectedSlot && (
+                    <div className="slot-details">
+                      <h5>Responses for {selectedSlot}</h5>
+                      <ul>
+                        {includedResponses
+                          .filter(res => res.availability?.[selectedSlot] > 0)
+                          .map(res => (
+                            <li key={res.email}>
+                              <strong>{res.username || res.email}</strong>:{" "}
+                              {res.availability[selectedSlot] === 3
+                                ? 'Perfect'
+                                : res.availability[selectedSlot] === 2
+                                ? 'OK'
+                                : 'Possible'}
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
+
 
                 <div className="availability-legend">
                   <strong>Legend:</strong>

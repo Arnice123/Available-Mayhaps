@@ -357,3 +357,29 @@
       flex-wrap: wrap;
     }
   }
+
+  .slot-details {
+    margin-top: 1rem;
+    background: #f9f9f9;
+    padding: 1rem;
+    border-left: 4px solid #3498db;
+    border-radius: 6px;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  
+  .slot-details h5 {
+    margin-top: 0;
+  }
+  
+  .slot-details ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  
+  .slot-details li {
+    padding: 4px 0;
+    font-size: 0.95rem;
+  }
+  
