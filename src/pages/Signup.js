@@ -6,10 +6,18 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [cooldownActive, setCooldownActive] = useState(false);
   const navigate = useNavigate();
 
   async function handleSignup(e) {
     e.preventDefault();
+
+    if (cooldownActive || submitting) return; // Prevent double submission
+    
+    setSubmitting(true);
+    setCooldownActive(true);
+
+
     const res = await fetch('/api/users?action=signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -24,6 +32,9 @@ export default function Signup() {
     } else {
       alert(data.message || 'Signup failed');
     }
+
+    setSubmitting(false);
+    setTimeout(() => setCooldownActive(false), 1000);
   }
 
   return (

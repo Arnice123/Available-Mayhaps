@@ -39,7 +39,7 @@ export default function Login() {
 
   return (
     <div className="auth-container">
-      <h1 className="auth-title">Log In to GroupSync</h1>
+      <h1 className="auth-title">Log In to Available Mayhaps</h1>
       
       {error && <div className="auth-error">{error}</div>}
       
