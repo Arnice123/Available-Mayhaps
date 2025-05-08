@@ -380,11 +380,12 @@ export default function GroupPage() {
           const aggregate = {};
           for (const res of includedResponses) {
             for (const [slot, isAvailable] of Object.entries(res.availability)) {
-              if (isAvailable) {
-                aggregate[slot] = (aggregate[slot] || 0) + value;
+              if (isAvailable > 0) {
+                aggregate[slot] = (aggregate[slot] || 0) + isAvailable;
               }
             }
           }             
+          
 
           return (
             <div>
