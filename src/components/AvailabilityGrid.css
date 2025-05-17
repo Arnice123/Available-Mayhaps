@@ -113,9 +113,7 @@
   
   /* Responsive styles */
   @media (max-width: 768px) {
-    .availability-grid td {
-      touch-action: none;
-    }
+    .availability-grid td,
     .availability-grid th {
       padding: 10px 8px;
     }
@@ -137,9 +135,7 @@
   }
   
   @media (max-width: 480px) {
-    .availability-grid td {
-      touch-action: none;
-    }
+    .availability-grid td,
     .availability-grid th {
       padding: 8px 6px;
     }
