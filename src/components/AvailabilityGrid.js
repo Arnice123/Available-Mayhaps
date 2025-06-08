@@ -180,55 +180,56 @@ export default function AvailabilityGrid({
                     }}
                     onTouchStart={(e) => {
                       if (!isAvailableSlot) return;
-                      e.preventDefault(); // Prevent default touch behavior
                       
                       const touch = e.touches[0];
                       setTouchStartTime(Date.now());
                       setTouchMoved(false);
                       setTouchStartPos({ x: touch.clientX, y: touch.clientY });
-                      setIsMouseDown(true);
                       setSelectionMode(mode === "binary" ? !value : true);
                       setLastClickedCell(key);
                     }}
                     onTouchMove={(e) => {
-                      if (!isAvailableSlot) return;
-                      e.preventDefault();
+                      if (!isAvailableSlot || !touchStartPos) return;
                       
                       const touch = e.touches[0];
                       const currentPos = { x: touch.clientX, y: touch.clientY };
                       
-                      // Check if touch has moved significantly (more than 10px)
-                      if (touchStartPos) {
-                        const distance = Math.sqrt(
-                          Math.pow(currentPos.x - touchStartPos.x, 2) + 
-                          Math.pow(currentPos.y - touchStartPos.y, 2)
-                        );
-                        
-                        if (distance > 10 && !touchMoved) {
-                          setTouchMoved(true);
-                        }
-                      }
+                      // Check if touch has moved significantly
+                      const distance = Math.sqrt(
+                        Math.pow(currentPos.x - touchStartPos.x, 2) + 
+                        Math.pow(currentPos.y - touchStartPos.y, 2)
+                      );
                       
-                      // Only drag select if we've moved significantly
-                      if (touchMoved && isMouseDown) {
-                        const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                        const moveKey = el?.dataset?.key;
-                        if (moveKey && (!availabilityTemplate || availabilityTemplate[moveKey])) {
-                          setAvailability(prev => ({
-                            ...prev,
-                            [moveKey]: mode === "binary" ? selectionMode : selectedResponseType
-                          }));
+                      // Only start preventing default and drag selecting after significant movement
+                      if (distance > 15) {
+                        if (!touchMoved) {
+                          setTouchMoved(true);
+                          setIsMouseDown(true);
+                          e.preventDefault(); // Only prevent default once we're sure it's a drag
+                        }
+                        
+                        // Drag select functionality
+                        if (touchMoved && isMouseDown) {
+                          e.preventDefault();
+                          const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                          const moveKey = el?.dataset?.key;
+                          if (moveKey && (!availabilityTemplate || availabilityTemplate[moveKey])) {
+                            setAvailability(prev => ({
+                              ...prev,
+                              [moveKey]: mode === "binary" ? selectionMode : selectedResponseType
+                            }));
+                          }
                         }
                       }
                     }}
                     onTouchEnd={(e) => {
                       if (!isAvailableSlot) return;
-                      e.preventDefault();
                       
                       const touchDuration = Date.now() - touchStartTime;
                       
-                      // If it was a quick tap (less than 200ms) and didn't move much, treat as single tap
-                      if (!touchMoved && touchDuration < 200) {
+                      // If it was a quick tap without significant movement, treat as single tap
+                      if (!touchMoved && touchDuration < 300) {
+                        e.preventDefault();
                         handleCellInteraction(key, isAvailableSlot, value);
                       }
                       
