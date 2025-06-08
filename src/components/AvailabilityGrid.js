@@ -14,6 +14,9 @@ export default function AvailabilityGrid({
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [selectionMode, setSelectionMode] = useState(true);
   const [lastClickedCell, setLastClickedCell] = useState(null);
+  const [touchStartTime, setTouchStartTime] = useState(0);
+  const [touchMoved, setTouchMoved] = useState(false);
+  const [touchStartPos, setTouchStartPos] = useState(null);
 
   useEffect(() => {
     const handleMouseUp = () => setIsMouseDown(false);
@@ -75,6 +78,26 @@ export default function AvailabilityGrid({
     }
     
     return className;
+  }
+
+  function handleCellInteraction(key, isAvailableSlot, value, isShiftClick = false) {
+    if (!isAvailableSlot) return;
+    
+    if (isShiftClick && lastClickedCell) {
+      const keys = getCellRange(lastClickedCell, key);
+      setAvailability(prev => {
+        const updated = { ...prev };
+        keys.forEach(k => {
+          if (!availabilityTemplate || availabilityTemplate[k]) {
+            updated[k] = mode === "binary" ? true : selectedResponseType;
+          }
+        });
+        return updated;
+      });
+    } else {
+      toggleCell(key);
+    }
+    setLastClickedCell(key);
   }
 
   return (
@@ -155,25 +178,64 @@ export default function AvailabilityGrid({
                       }
                       setLastClickedCell(key);
                     }}
-                    onTouchStart={() => {
+                    onTouchStart={(e) => {
                       if (!isAvailableSlot) return;
+                      e.preventDefault(); // Prevent default touch behavior
+                      
+                      const touch = e.touches[0];
+                      setTouchStartTime(Date.now());
+                      setTouchMoved(false);
+                      setTouchStartPos({ x: touch.clientX, y: touch.clientY });
                       setIsMouseDown(true);
                       setSelectionMode(mode === "binary" ? !value : true);
-                      toggleCell(key);
                       setLastClickedCell(key);
                     }}
                     onTouchMove={(e) => {
+                      if (!isAvailableSlot) return;
+                      e.preventDefault();
+                      
                       const touch = e.touches[0];
-                      const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                      const moveKey = el?.dataset?.key;
-                      if (moveKey && (!availabilityTemplate || availabilityTemplate[moveKey])) {
-                        setAvailability(prev => ({
-                          ...prev,
-                          [moveKey]: mode === "binary" ? selectionMode : selectedResponseType
-                        }));
+                      const currentPos = { x: touch.clientX, y: touch.clientY };
+                      
+                      // Check if touch has moved significantly (more than 10px)
+                      if (touchStartPos) {
+                        const distance = Math.sqrt(
+                          Math.pow(currentPos.x - touchStartPos.x, 2) + 
+                          Math.pow(currentPos.y - touchStartPos.y, 2)
+                        );
+                        
+                        if (distance > 10 && !touchMoved) {
+                          setTouchMoved(true);
+                        }
+                      }
+                      
+                      // Only drag select if we've moved significantly
+                      if (touchMoved && isMouseDown) {
+                        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                        const moveKey = el?.dataset?.key;
+                        if (moveKey && (!availabilityTemplate || availabilityTemplate[moveKey])) {
+                          setAvailability(prev => ({
+                            ...prev,
+                            [moveKey]: mode === "binary" ? selectionMode : selectedResponseType
+                          }));
+                        }
                       }
                     }}
-                    onTouchEnd={() => setIsMouseDown(false)}
+                    onTouchEnd={(e) => {
+                      if (!isAvailableSlot) return;
+                      e.preventDefault();
+                      
+                      const touchDuration = Date.now() - touchStartTime;
+                      
+                      // If it was a quick tap (less than 200ms) and didn't move much, treat as single tap
+                      if (!touchMoved && touchDuration < 200) {
+                        handleCellInteraction(key, isAvailableSlot, value);
+                      }
+                      
+                      setIsMouseDown(false);
+                      setTouchMoved(false);
+                      setTouchStartPos(null);
+                    }}
                   />
                 );
               })}
