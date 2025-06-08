@@ -7,6 +7,8 @@
   /* Improve mobile scrolling performance */
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
+  /* Prevent overscroll bounce on iOS */
+  overscroll-behavior: contain;
 }
 
 .availability-grid {
@@ -93,6 +95,13 @@
   position: relative;
   /* Improve touch responsiveness */
   touch-action: manipulation;
+  /* Add visual feedback for drag operations */
+  cursor: pointer;
+}
+
+.grid-cell:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
 }
 
 .grid-cell:hover {
@@ -193,16 +202,22 @@
   }
 }
 
-/* Add scroll indicators for better UX */
-@media (max-width: 768px) {
-  .availability-grid-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 20px;
-    height: 100%;
-    background: linear-gradient(to left, rgba(255,255,255,0.8), transparent);
-    pointer-events: none;
-  }
+/* Add drag state styles */
+body.dragging {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /* Prevent scrolling during drag operations */
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Enhanced visual feedback */
+.grid-cell-available:hover {
+  box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.3);
+}
+
+.grid-cell-available:active {
+  box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.5);
 }

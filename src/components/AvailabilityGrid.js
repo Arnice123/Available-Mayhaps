@@ -17,12 +17,31 @@ export default function AvailabilityGrid({
   const [touchStartTime, setTouchStartTime] = useState(0);
   const [touchMoved, setTouchMoved] = useState(false);
   const [touchStartPos, setTouchStartPos] = useState(null);
+  const [isDragSelecting, setIsDragSelecting] = useState(false);
 
   useEffect(() => {
-    const handleMouseUp = () => setIsMouseDown(false);
+    const handleMouseUp = () => {
+      setIsMouseDown(false);
+      setIsDragSelecting(false);
+      // Remove drag class from body
+      document.body.classList.remove('dragging');
+    };
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, []);
+
+  // Effect to manage body class for drag operations
+  useEffect(() => {
+    if (isDragSelecting) {
+      document.body.classList.add('dragging');
+    } else {
+      document.body.classList.remove('dragging');
+    }
+    
+    return () => {
+      document.body.classList.remove('dragging');
+    };
+  }, [isDragSelecting]);
 
   function toggleCell(key) {
     setAvailability(prev => {
@@ -151,15 +170,23 @@ export default function AvailabilityGrid({
                       if (!isAvailableSlot) return;
                       e.preventDefault();
                       setIsMouseDown(true);
-                      setSelectionMode(mode === "binary" ? !value : true);
-                      toggleCell(key);
+                      setIsDragSelecting(true);
+                      // Set selection mode based on current cell state
+                      const newMode = mode === "binary" ? !value : (value === selectedResponseType ? false : true);
+                      setSelectionMode(newMode);
+                      
+                      // Apply the selection immediately to this cell
+                      setAvailability(prev => ({
+                        ...prev,
+                        [key]: mode === "binary" ? newMode : (newMode ? selectedResponseType : 0)
+                      }));
                       setLastClickedCell(key);
                     }}
                     onMouseEnter={() => {
-                      if (!isAvailableSlot || !isMouseDown) return;
+                      if (!isAvailableSlot || !isMouseDown || !isDragSelecting) return;
                       setAvailability(prev => ({
                         ...prev,
-                        [key]: mode === "binary" ? selectionMode : selectedResponseType
+                        [key]: mode === "binary" ? selectionMode : (selectionMode ? selectedResponseType : 0)
                       }));
                     }}
                     onClick={(e) => {
@@ -185,7 +212,9 @@ export default function AvailabilityGrid({
                       setTouchStartTime(Date.now());
                       setTouchMoved(false);
                       setTouchStartPos({ x: touch.clientX, y: touch.clientY });
-                      setSelectionMode(mode === "binary" ? !value : true);
+                      // Set selection mode based on current cell state
+                      const newMode = mode === "binary" ? !value : (value === selectedResponseType ? false : true);
+                      setSelectionMode(newMode);
                       setLastClickedCell(key);
                     }}
                     onTouchMove={(e) => {
@@ -200,25 +229,30 @@ export default function AvailabilityGrid({
                         Math.pow(currentPos.y - touchStartPos.y, 2)
                       );
                       
-                      // Only start preventing default and drag selecting after significant movement
-                      if (distance > 15) {
-                        if (!touchMoved) {
-                          setTouchMoved(true);
-                          setIsMouseDown(true);
-                          e.preventDefault(); // Only prevent default once we're sure it's a drag
-                        }
+                      // Start drag selecting after 10px movement
+                      if (distance > 10 && !isDragSelecting) {
+                        setTouchMoved(true);
+                        setIsMouseDown(true);
+                        setIsDragSelecting(true);
+                        e.preventDefault(); // Prevent scrolling once drag starts
                         
-                        // Drag select functionality
-                        if (touchMoved && isMouseDown) {
-                          e.preventDefault();
-                          const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                          const moveKey = el?.dataset?.key;
-                          if (moveKey && (!availabilityTemplate || availabilityTemplate[moveKey])) {
-                            setAvailability(prev => ({
-                              ...prev,
-                              [moveKey]: mode === "binary" ? selectionMode : selectedResponseType
-                            }));
-                          }
+                        // Apply selection to the starting cell
+                        setAvailability(prev => ({
+                          ...prev,
+                          [key]: mode === "binary" ? selectionMode : (selectionMode ? selectedResponseType : 0)
+                        }));
+                      }
+                      
+                      // Continue drag selection
+                      if (isDragSelecting) {
+                        e.preventDefault(); // Prevent scrolling during drag
+                        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                        const moveKey = el?.dataset?.key;
+                        if (moveKey && (!availabilityTemplate || availabilityTemplate[moveKey])) {
+                          setAvailability(prev => ({
+                            ...prev,
+                            [moveKey]: mode === "binary" ? selectionMode : (selectionMode ? selectedResponseType : 0)
+                          }));
                         }
                       }
                     }}
@@ -227,13 +261,14 @@ export default function AvailabilityGrid({
                       
                       const touchDuration = Date.now() - touchStartTime;
                       
-                      // If it was a quick tap without significant movement, treat as single tap
-                      if (!touchMoved && touchDuration < 300) {
+                      // If it was a quick tap without drag selection, treat as single tap
+                      if (!isDragSelecting && touchDuration < 300) {
                         e.preventDefault();
                         handleCellInteraction(key, isAvailableSlot, value);
                       }
                       
                       setIsMouseDown(false);
+                      setIsDragSelecting(false);
                       setTouchMoved(false);
                       setTouchStartPos(null);
                     }}
