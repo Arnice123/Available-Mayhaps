@@ -66,10 +66,59 @@
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
+  position: relative;
 }
 
 .date-header-button:hover {
   background: #e0e0e0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.date-header-button:active {
+  transform: translateY(0);
+}
+
+/* Column state indicators */
+.date-header-button.all {
+  background: #a5d6a7;
+  border-color: #81c784;
+  color: #2e7d32;
+}
+
+.date-header-button.all:hover {
+  background: #81c784;
+}
+
+.date-header-button.partial {
+  background: #fff59d;
+  border-color: #fff176;
+  color: #f57f17;
+}
+
+.date-header-button.partial:hover {
+  background: #fff176;
+}
+
+.date-header-button.partial::after {
+  content: '●';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 8px;
+  color: #f57f17;
+}
+
+.date-header-button.none {
+  background: #f0f0f0;
+  border-color: #ddd;
+}
+
+.date-header-button.unavailable {
+  background: #f0f0f0;
+  border-color: #ddd;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .time-cell {

@@ -76,6 +76,27 @@ export default function AvailabilityGrid({
     return keys;
   }
 
+  function getColumnState(date) {
+    const availableCells = times.filter(time => {
+      const key = `${date}-${time}`;
+      return !availabilityTemplate || availabilityTemplate[key];
+    });
+    
+    if (availableCells.length === 0) return 'unavailable';
+    
+    const selectedCells = availableCells.filter(time => {
+      const key = `${date}-${time}`;
+      if (mode === "binary") {
+        return availability[key] === true;
+      } else {
+        return availability[key] === selectedResponseType;
+      }
+    });
+    
+    if (selectedCells.length === 0) return 'none';
+    if (selectedCells.length === availableCells.length) return 'all';
+    return 'partial';
+  }
   function getCellClassName(key, value, isAvailable) {
     let className = 'grid-cell';
     
@@ -129,19 +150,36 @@ export default function AvailabilityGrid({
               <th key={date}>
                 <button
                   type="button"
-                  className="date-header-button"
+                  className={`date-header-button ${getColumnState(date)}`}
                   onClick={() => {
                     setAvailability(prev => {
                       const updated = { ...prev };
-                      times.forEach(time => {
+                      
+                      // Check if all available cells in this column are already selected
+                      const availableCells = times.filter(time => {
                         const key = `${date}-${time}`;
-                        if (availabilityTemplate && !availabilityTemplate[key]) return;
+                        return !availabilityTemplate || availabilityTemplate[key];
+                      });
+                      
+                      const allSelected = availableCells.every(time => {
+                        const key = `${date}-${time}`;
                         if (mode === "binary") {
-                          updated[key] = true;
+                          return updated[key] === true;
                         } else {
-                          updated[key] = selectedResponseType;
+                          return updated[key] === selectedResponseType;
                         }
                       });
+                      
+                      // If all are selected, unselect them; otherwise select them
+                      availableCells.forEach(time => {
+                        const key = `${date}-${time}`;
+                        if (mode === "binary") {
+                          updated[key] = !allSelected;
+                        } else {
+                          updated[key] = allSelected ? 0 : selectedResponseType;
+                        }
+                      });
+                      
                       return updated;
                     });
                   }}
