@@ -200,6 +200,7 @@ export default function GroupPage() {
       if (res.ok) {
         alert('Availability submitted!');
         setMessage('');    
+        location.reload();
       } else {
         const data = await res.json();
         alert('Error: ' + (data.message || 'Unknown'));
@@ -534,7 +535,7 @@ export default function GroupPage() {
                           .map(res => (
                             <li key={res.email}>
                               <strong>{res.username || res.email}</strong>:{" "}
-                              {res.availability[selectedSlot] === 3
+                              {res.availability[selectedSlot] === 1
                                 ? 'Perfect'
                                 : res.availability[selectedSlot] === 2
                                 ? 'OK'
