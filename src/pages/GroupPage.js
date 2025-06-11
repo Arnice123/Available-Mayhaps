@@ -497,7 +497,7 @@ export default function GroupPage() {
 
                             const isAvailableSlot = event.availabilityTemplate[key];
                             const backgroundColor = isAvailableSlot
-                              ? `rgba(0, 128, 0, ${1 - intensity})`
+                              ? `rgba(0, 128, 0, ${1/(1 - intensity)})`
                               : '#f0f0f0';
 
                             const count = includedResponses.reduce((acc, res) => {
