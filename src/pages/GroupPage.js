@@ -494,7 +494,7 @@ export default function GroupPage() {
                             const rawScore = aggregate[key] || 0;
                             const maxScore = Math.max(includedResponses.length * 3, 1);
                             const minScore = Math.max(includedResponses.length, 1);
-                            intensity = 1 - ((rawScore - minScore) / (maxScore - minScore || 1));
+                            const intensity = 1 - ((rawScore - minScore) / (maxScore - minScore || 1));
                             // const intensity = rawScore / maxScore;
 
                             const isAvailableSlot = event.availabilityTemplate[key];
