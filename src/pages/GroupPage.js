@@ -222,7 +222,7 @@ export default function GroupPage() {
 
     try {
       const res = await fetch('/api/groups/event', {
-        method: 'DELETE',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
