@@ -200,7 +200,7 @@ export default function GroupPage() {
       if (res.ok) {
         alert('Availability submitted!');
         setMessage('');    
-        location.reload();
+        window.location.reload();
       } else {
         const data = await res.json();
         alert('Error: ' + (data.message || 'Unknown'));
