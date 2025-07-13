@@ -584,7 +584,7 @@ export default function GroupPage() {
           );
         })()}
 
-        {isOrganizer && (
+        {(
           <div style={{ marginTop: '20px' }}>
             <button className="btn btn-primary" onClick={handleCreateEvent}>
               Create New Event

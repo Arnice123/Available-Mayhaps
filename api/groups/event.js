@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         try {
       
           const group = await db.collection('groups').findOne({ _id: new ObjectId(groupId) });
-          if (!group || group.organizerEmail !== user.email) {
+          if (!group) {
             return res.status(403).json({ message: 'Forbidden' });
           }
       
