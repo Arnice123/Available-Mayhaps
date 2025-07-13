@@ -19,9 +19,9 @@ export default function CreateEvent() {
   const navigate = useNavigate();
 
   const times = [
-    '12am','1am','2am','3am','4am','5am','6am','7am',
-    '8am','9am','10am','11am','12pm','1pm','2pm','3pm',
-    '4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
+    '12:00am','1:00am','2:00am','3:00am','4:00am','5:00am','6:00am','7:00am',
+    '8:00am','9:00am','10:00am','11:00am','12:00pm','1:00pm','2:00pm','3:00pm',
+    '4:00pm','5:00pm','6:00pm','7:00pm','8:00pm','9:00pm','10:00pm','11:00pm'
   ];
   
   function getFilteredTimes() {
@@ -35,22 +35,14 @@ export default function CreateEvent() {
     if (!startDate || !endDate) return [];
     try {
       return eachDayOfInterval({
-        start: new Date(startDate),
-        end: new Date(endDate)
+        start: parseISO(startDate),
+        end: parseISO(endDate)
       }).map(d => format(d, 'yyyy-MM-dd'));
     } catch (error) {
       console.error("Date interval error:", error);
       return [];
     }
   };
-
-  function toggleCell(date, time) {
-    const key = `${date}-${time}`;
-    setAvailability(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -72,6 +64,8 @@ export default function CreateEvent() {
     }
 
     if (cooldownActive || submitting) return; // Prevent double submission
+
+    
     
     setSubmitting(true);
     setCooldownActive(true);
@@ -114,6 +108,7 @@ export default function CreateEvent() {
   }
 
   return (
+    
     <div className="create-event-page">
       <header className="create-event-header">
         <h1>Create New Event</h1>
