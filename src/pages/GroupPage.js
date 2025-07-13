@@ -200,6 +200,7 @@ export default function GroupPage() {
       if (res.ok) {
         alert('Availability submitted!');
         setMessage('');    
+        window.location.reload();
       } else {
         const data = await res.json();
         alert('Error: ' + (data.message || 'Unknown'));
@@ -221,7 +222,7 @@ export default function GroupPage() {
 
     try {
       const res = await fetch('/api/groups/event', {
-        method: 'DELETE',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
@@ -491,18 +492,26 @@ export default function GroupPage() {
                           {days.map(day => {
                             const key = `${day}-${time}`;
                             const rawScore = aggregate[key] || 0;
-                            const maxScore = Math.max(includedResponses.length * 3, 1);
-                            const intensity = rawScore / maxScore;
+                            const count = includedResponses.reduce((acc, res) => {
+                              const level = res.availability?.[key];
+                              return level > 0 ? acc + 1 : acc;
+                            }, 0);
+                            
+                            // Add penalty for people who didn't respond (treat as "can't do")
+                            const nonResponders = includedResponses.length - count;
+                            const penaltyScore = nonResponders * 4;
+                            const totalScore = rawScore + penaltyScore;
+                            
+                            const maxPossibleScore = includedResponses.length * 4; 
+                            const minPossibleScore = includedResponses.length * 1;
+                            const intensity = totalScore > 0 
+                              ? (maxPossibleScore - totalScore) / (maxPossibleScore - minPossibleScore)
+                              : 0;
 
                             const isAvailableSlot = event.availabilityTemplate[key];
                             const backgroundColor = isAvailableSlot
                               ? `rgba(0, 128, 0, ${intensity})`
                               : '#f0f0f0';
-
-                            const count = includedResponses.reduce((acc, res) => {
-                              const level = res.availability?.[key];
-                              return level > 0 ? acc + 1 : acc;
-                            }, 0);
 
                             return (
                               <td
@@ -534,7 +543,7 @@ export default function GroupPage() {
                           .map(res => (
                             <li key={res.email}>
                               <strong>{res.username || res.email}</strong>:{" "}
-                              {res.availability[selectedSlot] === 3
+                              {res.availability[selectedSlot] === 1
                                 ? 'Perfect'
                                 : res.availability[selectedSlot] === 2
                                 ? 'OK'
