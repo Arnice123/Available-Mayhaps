@@ -184,7 +184,7 @@ export default function AvailabilityGrid({
                     });
                   }}
                 >
-                  {format(parseISO(date), 'EEE MMM d')}
+                  {format(new Date(`${date}T00:00:00Z`), 'EEE MMM d')}
                 </button>
               </th>
             ))}
