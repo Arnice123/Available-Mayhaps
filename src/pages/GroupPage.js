@@ -480,7 +480,7 @@ export default function GroupPage() {
                         <th></th>
                         {days.map(day => (
                           <th key={day}>
-                            {format(parseISO(date), 'EEE MMM d', { timeZone: 'UTC' })}
+                            {format(parseISO(day), 'EEE MMM d', { timeZone: 'UTC' })}
                           </th>
                         ))}
                       </tr>
