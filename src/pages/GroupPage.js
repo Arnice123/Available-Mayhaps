@@ -11,10 +11,13 @@ const TIMES = [
 ];
 
 function getDateList(startDate, endDate) {
-  return eachDayOfInterval({
+  const dates = eachDayOfInterval({
     start: parseISO(startDate),
     end: parseISO(endDate)
-  }).map(d => format(d, 'yyyy-MM-dd', { timeZone: 'UTC' }))
+  });
+  
+  // Add 1 day to each date before formatting
+  return dates.map(d => format(addDays(d, 1), 'yyyy-MM-dd'));
 }
 
 function getTimeRange(startTime, endTime) {
