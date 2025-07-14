@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { format, eachDayOfInterval, parseISO } from 'date-fns';
+import { format, eachDayOfInterval, parseISO, addDays } from 'date-fns';
 
 import AvailabilityGrid from '../components/AvailabilityGrid.js';
 import './GroupPage.css';
