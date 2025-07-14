@@ -14,7 +14,7 @@ function getDateList(startDate, endDate) {
   return eachDayOfInterval({
     start: parseISO(startDate),
     end: parseISO(endDate)
-  }).map(d => format(d, 'yyyy-MM-dd'));
+  }).map(d => format(d, 'yyyy-MM-dd', { timeZone: 'UTC' }))
 }
 
 function getTimeRange(startTime, endTime) {
