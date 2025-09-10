@@ -40,7 +40,7 @@ export default function AvailabilityGrid({
       document.body.classList.remove('dragging');
     };
   }, [isDragSelecting]);
-
+ 
   function toggleCell(key) {
     setAvailability(prev => {
       const current = prev[key] || 0;
