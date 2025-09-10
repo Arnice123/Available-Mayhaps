@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { parseISO, format } from 'date-fns';
 import './AvailabilityGrid.css'; // Import the CSS file
 
@@ -18,18 +18,6 @@ export default function AvailabilityGrid({
   const [touchMoved, setTouchMoved] = useState(false);
   const [touchStartPos, setTouchStartPos] = useState(null);
   const [isDragSelecting, setIsDragSelecting] = useState(false);
-
-  // Refs to synchronize the heights of the two tables
-  const mainGridHeaderRef = useRef(null);
-  const timeGridHeaderRef = useRef(null);
-
-  // Effect to synchronize the heights of the two table headers
-  useEffect(() => {
-    if (mainGridHeaderRef.current && timeGridHeaderRef.current) {
-      const mainHeaderHeight = mainGridHeaderRef.current.offsetHeight;
-      timeGridHeaderRef.current.style.height = `${mainHeaderHeight}px`;
-    }
-  }, [selectedDates, times]); // Re-run effect if dates or times change
 
   useEffect(() => {
     const handleMouseUp = () => {
@@ -157,8 +145,7 @@ export default function AvailabilityGrid({
         <table className="time-grid">
           <thead>
             <tr>
-              {/* Added ref to the header cell for height synchronization */}
-              <th ref={timeGridHeaderRef} className="top-left-cell"></th>
+              <th className="top-left-cell"></th>
             </tr>
           </thead>
           <tbody>
@@ -173,7 +160,7 @@ export default function AvailabilityGrid({
       <div className="availability-grid-right-scroll">
         <table className="availability-grid">
           <thead>
-            <tr ref={mainGridHeaderRef}>
+            <tr>
               {selectedDates.map(date => (
                 <th key={date} className="date-header-cell">
                   <button

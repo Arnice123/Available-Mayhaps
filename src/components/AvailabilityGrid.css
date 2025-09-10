@@ -13,8 +13,6 @@
 .availability-grid-left-column {
   /* This column will be fixed in place */
   flex-shrink: 0;
-  position: relative;
-  z-index: 2; /* Ensures the left column is on top of the scrolling grid */
 }
 
 .availability-grid-right-scroll {
@@ -59,11 +57,9 @@
   z-index: 10;
 }
 
-/* The top-left cell's height is now synchronized via JavaScript */
 .top-left-cell {
   background-color: #f5f5f5;
   width: 90px; /* Match the time cell width */
-  min-height: 48px; /* A fallback min-height to prevent flicker */
 }
 
 .availability-grid thead tr,
