@@ -1,37 +1,55 @@
 /* AvailabilityGrid.css */
 
-.availability-grid-container {
-  overflow-x: auto;
+.availability-grid-wrapper {
+  display: flex;
   margin: 20px 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  /* Improve mobile scrolling performance */
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  /* Prevent overscroll bounce on iOS */
-  overscroll-behavior: contain;
-}
-
-.availability-grid {
-  border-collapse: collapse;
-  width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  overflow: hidden;
-  /* Prevent text selection during drag operations */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
+.availability-grid-left-column {
+  /* This column will be fixed in place */
+  flex-shrink: 0;
+}
+
+.availability-grid-right-scroll {
+  /* This column will be scrollable horizontally */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  flex-grow: 1;
+}
+
+.time-grid,
+.availability-grid {
+  border-collapse: collapse;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.time-grid {
+  width: auto;
+}
+
+.availability-grid {
+  width: 100%;
+}
+
 .availability-grid th,
-.availability-grid td {
+.availability-grid td,
+.time-grid th,
+.time-grid td {
   padding: 12px;
   text-align: center;
   border: 1px solid #e0e0e0;
 }
 
-.availability-grid th {
+.availability-grid th,
+.time-grid th {
   background-color: #f5f5f5;
   font-weight: 600;
   position: sticky;
@@ -39,11 +57,18 @@
   z-index: 10;
 }
 
-.availability-grid thead tr {
+.top-left-cell {
+  background-color: #f5f5f5;
+  width: 90px; /* Match the time cell width */
+}
+
+.availability-grid thead tr,
+.time-grid thead tr {
   background-color: #f5f5f5;
 }
 
-.availability-grid tbody tr:nth-child(even) {
+.availability-grid tbody tr:nth-child(even),
+.time-grid tbody tr:nth-child(even) {
   background-color: #fafafa;
 }
 
@@ -61,7 +86,6 @@
   border-radius: 4px;
   transition: all 0.2s ease;
   width: 100%;
-  /* Allow button text to be selected */
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -130,7 +154,6 @@
   background-color: #f5f5f5;
   font-weight: 500;
   min-width: 80px;
-  /* Allow time text to be selected */
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -142,9 +165,7 @@
   height: 36px;
   transition: background-color 0.15s ease;
   position: relative;
-  /* Improve touch responsiveness */
   touch-action: manipulation;
-  /* Add visual feedback for drag operations */
   cursor: pointer;
 }
 
@@ -165,7 +186,6 @@
   cursor: not-allowed;
   background-color: #f0f0f0 !important;
   opacity: 0.6;
-  /* No touch interaction for unavailable cells */
   touch-action: auto;
 }
 
@@ -180,62 +200,64 @@
 
 /* Cell states for level mode */
 .cell-level-1 {
-  background-color: #a5d6a7 !important; /* Light green */
+  background-color: #a5d6a7 !important;
 }
 
 .cell-level-2 {
-  background-color: #fff59d !important; /* Light yellow */
+  background-color: #fff59d !important;
 }
 
 .cell-level-3 {
-  background-color: #ef9a9a !important; /* Light red */
+  background-color: #ef9a9a !important;
 }
 
 /* Responsive styles */
 @media (max-width: 768px) {
-  .availability-grid-container {
-    /* Add some padding for easier scrolling on mobile */
-    padding: 0 10px;
+  .availability-grid-wrapper {
     margin: 20px -10px;
+    padding: 0 10px;
+  }
+  
+  .availability-grid-right-scroll {
+    padding-bottom: 10px;
   }
   
   .availability-grid td,
-  .availability-grid th {
+  .availability-grid th,
+  .time-grid td,
+  .time-grid th {
     padding: 10px 8px;
   }
   
   .grid-cell {
     width: 70px;
-    height: 36px; /* Slightly taller for easier touch */
-    /* Optimize for touch */
+    height: 36px;
     touch-action: manipulation;
   }
   
   .time-cell {
     font-size: 13px;
     min-width: 70px;
-    position: sticky;
-    left: 0;
-    background-color: #f5f5f5;
-    z-index: 5;
   }
   
   .date-header-button {
     padding: 8px 6px;
     font-size: 13px;
-    min-height: 44px; /* Ensure minimum touch target size */
+    min-height: 44px;
   }
 }
 
 @media (max-width: 480px) {
   .availability-grid td,
-  .availability-grid th {
+  .availability-grid th,
+  .time-grid td,
+  .time-grid th {
     padding: 8px 4px;
   }
   
   .grid-cell {
     width: 60px;
-    height: 40px; /* Even taller for small screens */
+    height: 40px;
   }
   
   .time-cell {
@@ -243,7 +265,6 @@
     min-width: 60px;
     padding: 8px 6px;
   }
-  
   
   .date-header-button {
     padding: 6px 4px;
@@ -258,7 +279,6 @@ body.dragging {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  /* Prevent scrolling during drag operations */
   overflow: hidden;
   touch-action: none;
 }
