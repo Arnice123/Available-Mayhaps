@@ -145,7 +145,7 @@ export default function AvailabilityGrid({
         <table className="time-grid">
           <thead>
             <tr>
-              <th className="time-cell"></th>
+              <th className="top-left-cell"></th>
             </tr>
           </thead>
           <tbody>
