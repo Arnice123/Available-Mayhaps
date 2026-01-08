@@ -60,6 +60,21 @@ export default function GroupPage() {
     if (groupId) fetchGroup();
   }, [groupId]);
 
+  useEffect(() => {
+  const handleBeforeUnload = (e) => {
+    if (!hasUnsavedChanges) return;
+
+    e.preventDefault();
+    e.returnValue = ''; 
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, [hasUnsavedChanges]);
+
   async function handleAddMember() {
     if (!newMemberEmail.trim()) {
       alert('Please enter an email address');
