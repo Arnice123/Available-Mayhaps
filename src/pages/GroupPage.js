@@ -41,6 +41,7 @@ export default function GroupPage() {
   const [selectedResponseType, setSelectedResponseType] = useState(1); // 1: perfect, 2: ok, 3: possible
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const navigate = useNavigate();
 
