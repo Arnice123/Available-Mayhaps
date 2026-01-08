@@ -216,11 +216,12 @@ export default function GroupPage() {
         })
       });
 
-      if (res.ok) {
-        alert('Availability submitted!');
-        setMessage('');    
-        window.location.reload();
-      } else {
+        if (res.ok) {
+          alert('Availability submitted!');
+          setHasUnsavedChanges(false);
+          setMessage('');
+          window.location.reload();
+        } else {
         const data = await res.json();
         alert('Error: ' + (data.message || 'Unknown'));
       }
@@ -440,7 +441,10 @@ export default function GroupPage() {
                 selectedDates={days}
                 times={times}
                 availability={memberAvailability}
-                setAvailability={setMemberAvailability}
+                setAvailability={(val) => {
+                  setMemberAvailability(val);
+                  setHasUnsavedChanges(true);
+                }}
                 availabilityTemplate={event.availabilityTemplate}
                 mode="level"
                 selectedResponseType={selectedResponseType}
@@ -451,7 +455,10 @@ export default function GroupPage() {
                 <textarea 
                   placeholder="Message for the group" 
                   value={message} 
-                  onChange={(e) => setMessage(e.target.value)} 
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    setHasUnsavedChanges(true);
+                  }} 
                 />
                 <div style={{ marginTop: '10px' }}>
                   <button className="btn btn-success" onClick={handleSubmitAvailability}>
