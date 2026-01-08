@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format, parseISO, eachDayOfInterval } from 'date-fns';
 import AvailabilityGrid from '../components/AvailabilityGrid.js';
@@ -15,6 +15,7 @@ export default function CreateEvent() {
   const [endTime, setEndTime] = useState('5pm');
   const [cooldownActive, setCooldownActive] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const navigate = useNavigate();
 
@@ -23,6 +24,22 @@ export default function CreateEvent() {
     '8am','9am','10am','11am','12pm','1pm','2pm','3pm',
     '4pm','5pm','6pm','7pm','8pm','9pm','10pm','11pm'
   ];
+
+  useEffect(() => {
+  const handleBeforeUnload = (e) => {
+    if (!hasUnsavedChanges) return;
+
+    e.preventDefault();
+    e.returnValue = '';
+  };
+
+  
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+}, [hasUnsavedChanges]);
+
+
   
   function getFilteredTimes() {
     const startIndex = times.indexOf(startTime);
@@ -43,6 +60,8 @@ export default function CreateEvent() {
       return [];
     }
   };
+
+  
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -93,8 +112,10 @@ export default function CreateEvent() {
 
       if (res.ok) {
         alert('Event created successfully!');
+        setHasUnsavedChanges(false);
         navigate(`/group/${groupId}`);
-      } else {
+      }
+      else {
         const data = await res.json();
         alert('Failed to create event: ' + (data.message || 'Unknown error'));
       }
@@ -125,7 +146,10 @@ export default function CreateEvent() {
               className="form-input" 
               type="text" 
               value={title} 
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setHasUnsavedChanges(true);
+              }}
               placeholder="Enter event title"
               required
             />
@@ -137,7 +161,11 @@ export default function CreateEvent() {
               id="event-description"
               className="form-textarea" 
               value={description} 
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setHasUnsavedChanges(true);
+              }}
+
               placeholder="Describe your event (optional)"
             />
           </div>
@@ -154,7 +182,11 @@ export default function CreateEvent() {
                 className="form-input" 
                 type="date" 
                 value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setHasUnsavedChanges(true);
+                }}
+
                 required
               />
             </div>
@@ -166,7 +198,10 @@ export default function CreateEvent() {
                 className="form-input" 
                 type="date" 
                 value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setHasUnsavedChanges(true);
+                }}
                 required
               />
             </div>
@@ -179,7 +214,11 @@ export default function CreateEvent() {
                 id="start-time"
                 className="form-select" 
                 value={startTime} 
-                onChange={(e) => setStartTime(e.target.value)}
+                onChange={(e) => {
+                  setStartTime(e.target.value);
+                  setHasUnsavedChanges(true);
+                }}
+
               >
                 {times.map(time => <option key={time} value={time}>{time}</option>)}
               </select>
@@ -191,7 +230,11 @@ export default function CreateEvent() {
                 id="end-time"
                 className="form-select" 
                 value={endTime} 
-                onChange={(e) => setEndTime(e.target.value)}
+                onChange={(e) => {
+                  setEndTime(e.target.value);
+                  setHasUnsavedChanges(true);
+                }}
+
               >
                 {times.map(time => <option key={time} value={time}>{time}</option>)}
               </select>
@@ -209,7 +252,10 @@ export default function CreateEvent() {
                 selectedDates={selectedDates()}
                 times={getFilteredTimes()}
                 availability={availability}
-                setAvailability={setAvailability}
+                setAvailability={(val) => {
+                  setAvailability(val);
+                  setHasUnsavedChanges(true);
+                }}
                 mode="binary"
               />
             ) : (
